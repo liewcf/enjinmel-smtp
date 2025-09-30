@@ -171,6 +171,12 @@ function enginemail_smtp_pre_wp_mail( $return, $args ) {
             )
         );
 
+        $error->add(
+            'enginemail_rest_failure',
+            $response->get_error_message(),
+            $response->get_error_data()
+        );
+
         // Preserve the specific EngineMail error code for debugging.
         $error->add(
             $response->get_error_code(),
@@ -232,6 +238,17 @@ function enginemail_smtp_activate() {
 }
 
 register_activation_hook( __FILE__, 'enginemail_smtp_activate' );
+
+/**
+ * Plugin deactivation: clear scheduled events.
+ */
+function enginemail_smtp_deactivate() {
+    if ( class_exists( 'EngineMail_SMTP_Logging' ) ) {
+        EngineMail_SMTP_Logging::unschedule_events();
+    }
+}
+
+register_deactivation_hook( __FILE__, 'enginemail_smtp_deactivate' );
 
 /**
  * Surface admin notices for missing encryption constants or API key issues.

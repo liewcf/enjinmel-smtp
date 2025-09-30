@@ -43,6 +43,14 @@ class EngineMail_SMTP_API_Client {
          */
         $payload = apply_filters( 'enginemail_smtp_payload', $payload, $normalized, $settings );
 
+        /**
+         * Fires immediately before the EngineMail REST request is dispatched.
+         *
+         * @param array $normalized Normalized mail arguments.
+         * @param array $payload    Request payload that will be submitted.
+         */
+        do_action( 'enginemail_smtp_before_send', $normalized, $payload );
+
         $request_args = array(
             'headers' => array(
                 'Content-Type' => 'application/json',
@@ -62,11 +70,13 @@ class EngineMail_SMTP_API_Client {
 
         $response = wp_remote_post( self::ENDPOINT, $request_args );
         if ( is_wp_error( $response ) ) {
-            return new WP_Error(
+            $result = new WP_Error(
                 'enginemail_http_error',
                 __( 'Unable to reach EngineMail API.', 'enginemail-smtp' ),
                 array( 'error' => $response )
             );
+            do_action( 'enginemail_smtp_after_send', $normalized, $payload, $result );
+            return $result;
         }
 
         $code     = wp_remote_retrieve_response_code( $response );
@@ -74,7 +84,7 @@ class EngineMail_SMTP_API_Client {
         $body     = json_decode( $body_raw, true );
 
         if ( 200 !== (int) $code ) {
-            return new WP_Error(
+            $result = new WP_Error(
                 'enginemail_http_status',
                 sprintf(
                     /* translators: %d: HTTP status code */
@@ -86,14 +96,18 @@ class EngineMail_SMTP_API_Client {
                     'body' => $body_raw,
                 )
             );
+            do_action( 'enginemail_smtp_after_send', $normalized, $payload, $result );
+            return $result;
         }
 
         if ( ! is_array( $body ) ) {
-            return new WP_Error(
+            $result = new WP_Error(
                 'enginemail_invalid_response',
                 __( 'Unexpected EngineMail API response.', 'enginemail-smtp' ),
                 array( 'body' => $body_raw )
             );
+            do_action( 'enginemail_smtp_after_send', $normalized, $payload, $result );
+            return $result;
         }
 
         $result = isset( $body['Result'] ) ? $body['Result'] : $body;
@@ -101,13 +115,16 @@ class EngineMail_SMTP_API_Client {
 
         if ( '200' !== $status && 'OK' !== strtoupper( $status ) ) {
             $message = isset( $result['Message'] ) ? $result['Message'] : __( 'Unknown error.', 'enginemail-smtp' );
-            return new WP_Error(
+            $result_error = new WP_Error(
                 'enginemail_api_error',
                 $message,
                 array( 'response' => $body )
             );
+            do_action( 'enginemail_smtp_after_send', $normalized, $payload, $result_error );
+            return $result_error;
         }
 
+        do_action( 'enginemail_smtp_after_send', $normalized, $payload, $body );
         return $body;
     }
 

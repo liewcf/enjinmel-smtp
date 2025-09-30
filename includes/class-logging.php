@@ -8,12 +8,17 @@
  */
 class EngineMail_SMTP_Logging {
 
+    private const CRON_HOOK = 'enginemail_smtp_purge_logs';
+
     /**
      * Initialize hooks.
      */
     public static function init() {
         add_action( 'wp_mail_succeeded', array( __CLASS__, 'on_mail_succeeded' ), 10, 1 );
         add_action( 'wp_mail_failed', array( __CLASS__, 'on_mail_failed' ), 10, 1 );
+        add_action( self::CRON_HOOK, array( __CLASS__, 'purge_logs' ) );
+
+        self::schedule_purge_event();
     }
 
     /**
@@ -75,15 +80,34 @@ class EngineMail_SMTP_Logging {
         $subject       = self::truncate( $subject, 255 );
         $error_message = (string) $error_message; // TEXT
 
+        $entry = array(
+            'timestamp'     => current_time( 'mysql' ),
+            'to_email'      => $to_emails,
+            'subject'       => $subject,
+            'status'        => ( 'failed' === $status ) ? 'failed' : 'sent',
+            'error_message' => $error_message,
+        );
+
+        /**
+         * Filter a log entry prior to database insert.
+         *
+         * @param array  $entry         Associative array with timestamp, to_email, subject, status, error_message.
+         * @param string $status        Original status determined by the logger.
+         * @param string $to_emails     Normalized recipient list.
+         * @param string $subject       Normalized subject line.
+         * @param string $error_message Error message string (empty when not applicable).
+         */
+        $entry = apply_filters( 'enginemail_smtp_log_entry', $entry, $status, $to_emails, $subject, $error_message );
+
+        if ( ! is_array( $entry ) ) {
+            return;
+        }
+
+        $entry = self::normalize_log_entry( $entry );
+
         $wpdb->insert(
             $table,
-            array(
-                'timestamp'     => current_time( 'mysql' ),
-                'to_email'      => $to_emails,
-                'subject'       => $subject,
-                'status'        => ( 'failed' === $status ) ? 'failed' : 'sent',
-                'error_message' => $error_message,
-            ),
+            $entry,
             array( '%s', '%s', '%s', '%s', '%s' )
         );
     }
@@ -158,5 +182,95 @@ class EngineMail_SMTP_Logging {
         }
         return substr( $text, 0, (int) $limit );
     }
-}
 
+    /**
+     * Normalize data before persisting a log entry.
+     *
+     * @param array $entry Log entry.
+     * @return array
+     */
+    private static function normalize_log_entry( array $entry ) {
+        $entry['timestamp'] = isset( $entry['timestamp'] ) ? $entry['timestamp'] : current_time( 'mysql' );
+        $entry['to_email']  = isset( $entry['to_email'] ) ? self::truncate( (string) $entry['to_email'], 255 ) : '';
+        $entry['subject']   = isset( $entry['subject'] ) ? self::truncate( sanitize_text_field( (string) $entry['subject'] ), 255 ) : '';
+
+        $status = isset( $entry['status'] ) ? strtolower( (string) $entry['status'] ) : 'sent';
+        $entry['status'] = ( 'failed' === $status ) ? 'failed' : 'sent';
+
+        $entry['error_message'] = isset( $entry['error_message'] ) ? (string) $entry['error_message'] : '';
+
+        return array(
+            'timestamp'     => $entry['timestamp'],
+            'to_email'      => $entry['to_email'],
+            'subject'       => $entry['subject'],
+            'status'        => $entry['status'],
+            'error_message' => $entry['error_message'],
+        );
+    }
+
+    /**
+     * Schedule the retention purge as a daily cron event.
+     *
+     * @return void
+     */
+    private static function schedule_purge_event() {
+        if ( ! function_exists( 'wp_next_scheduled' ) || ! function_exists( 'wp_schedule_event' ) ) {
+            return;
+        }
+
+        if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
+            wp_schedule_event( time(), 'daily', self::CRON_HOOK );
+        }
+    }
+
+    /**
+     * Unschedule the daily purge event.
+     *
+     * @return void
+     */
+    public static function unschedule_events() {
+        if ( function_exists( 'wp_clear_scheduled_hook' ) ) {
+            wp_clear_scheduled_hook( self::CRON_HOOK );
+        }
+    }
+
+    /**
+     * Purge logs based on configured retention limits.
+     *
+     * @return void
+     */
+    public static function purge_logs() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'enginemail_smtp_logs';
+
+        if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) {
+            return;
+        }
+
+        $days = (int) apply_filters( 'enginemail_smtp_retention_days', 90 );
+        if ( $days > 0 ) {
+            $threshold_timestamp = strtotime( sprintf( '-%d days', $days ), current_time( 'timestamp' ) );
+            if ( false !== $threshold_timestamp ) {
+                $threshold = function_exists( 'wp_date' )
+                    ? wp_date( 'Y-m-d H:i:s', $threshold_timestamp )
+                    : gmdate( 'Y-m-d H:i:s', $threshold_timestamp + ( get_option( 'gmt_offset', 0 ) * HOUR_IN_SECONDS ) );
+                $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE timestamp < %s", $threshold ) );
+            }
+        }
+
+        $max_rows = (int) apply_filters( 'enginemail_smtp_retention_max_rows', 10000 );
+        if ( $max_rows > 0 ) {
+            $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+            if ( $count > $max_rows ) {
+                $over_limit = $count - $max_rows;
+                $ids        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} ORDER BY timestamp ASC LIMIT %d", $over_limit ) );
+                if ( ! empty( $ids ) ) {
+                    $ids        = array_map( 'intval', $ids );
+                    $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+                    $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN ({$placeholders})", $ids ) );
+                }
+            }
+        }
+    }
+}
