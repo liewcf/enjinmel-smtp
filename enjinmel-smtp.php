@@ -108,7 +108,7 @@ function enjinmel_smtp_legacy_log_table_name() {
  */
 function enjinmel_smtp_table_exists( $table ) {
 	global $wpdb;
-	return ( $table === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) );
+	return ( $table === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Single table existence check executed during administrative flows.
 }
 
 /**
@@ -144,17 +144,17 @@ function enjinmel_smtp_sanitize_table_name( $table ) {
 /**
  * Retrieve plugin settings with legacy fallback.
  *
- * @param array $default Default value when no settings are found.
+ * @param array $default_value Default value when no settings are found.
  * @return array
  */
-function enjinmel_smtp_get_settings( $default = array() ) {
+function enjinmel_smtp_get_settings( $default_value = array() ) {
 	$settings = get_option( enjinmel_smtp_option_key(), null );
 	if ( null === $settings ) {
 		$settings = get_option( enjinmel_smtp_legacy_option_key(), null );
 	}
 
 	if ( ! is_array( $settings ) ) {
-		return $default;
+		return $default_value;
 	}
 
 	return $settings;
@@ -174,10 +174,10 @@ function enjinmel_smtp_update_settings( array $settings ) {
  * Retrieve a specific setting key with legacy fallback.
  *
  * @param string $key     Settings key.
- * @param mixed  $default Default value when key is missing.
+ * @param mixed  $default_value Default value when key is missing.
  * @return mixed
  */
-function enjinmel_smtp_get_setting( $key, $default = null ) {
+function enjinmel_smtp_get_setting( $key, $default_value = null ) {
 	$settings = enjinmel_smtp_get_settings();
 	if ( isset( $settings[ $key ] ) ) {
 		return $settings[ $key ];
@@ -188,7 +188,7 @@ function enjinmel_smtp_get_setting( $key, $default = null ) {
 		return $legacy[ $key ];
 	}
 
-	return $default;
+	return $default_value;
 }
 
 /**
@@ -246,12 +246,12 @@ function enjinmel_smtp_maybe_migrate_logs() {
 	$new_table_sanitized    = enjinmel_smtp_sanitize_table_name( $new_table );
 	$legacy_table_sanitized = enjinmel_smtp_sanitize_table_name( $legacy_table );
 
-	$has_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$new_table_sanitized}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table name built from known plugin constant and sanitized prior to interpolation.
+	$has_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$new_table_sanitized}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name built from known plugin constant and sanitized prior to interpolation.
 	if ( $has_rows > 0 ) {
 		return;
 	}
 
-	$wpdb->query( "INSERT INTO {$new_table_sanitized} (timestamp, to_email, subject, status, error_message) SELECT timestamp, to_email, subject, status, error_message FROM {$legacy_table_sanitized}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table names sourced from plugin constants and sanitized before interpolation.
+	$wpdb->query( "INSERT INTO {$new_table_sanitized} (timestamp, to_email, subject, status, error_message) SELECT timestamp, to_email, subject, status, error_message FROM {$legacy_table_sanitized}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table names sourced from plugin constants and sanitized before interpolation.
 }
 
 /**
@@ -491,25 +491,25 @@ function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
 			'wp_mail_failed',
 			$response->get_error_message(),
 			array(
-				'to'           => $args['to'],
-				'subject'      => $args['subject'],
-				'message'      => $args['message'],
-				'headers'      => $args['headers'],
-				'attachments'  => $args['attachments'],
-				'transport'    => 'enjinmel_rest',
+				'to'               => $args['to'],
+				'subject'          => $args['subject'],
+				'message'          => $args['message'],
+				'headers'          => $args['headers'],
+				'attachments'      => $args['attachments'],
+				'transport'        => 'enjinmel_rest',
 				'legacy_transport' => 'enginemail_rest',
-				'engine_error' => array(
+				'engine_error'     => array(
 					'code' => $response->get_error_code(),
 					'data' => $response->get_error_data(),
 				),
 			)
 		);
 
- 		$error->add(
- 			'enjinmel_rest_failure',
- 			$response->get_error_message(),
- 			$response->get_error_data()
- 		);
+		$error->add(
+			'enjinmel_rest_failure',
+			$response->get_error_message(),
+			$response->get_error_data()
+		);
 
 		$error->add(
 			'enginemail_rest_failure',
@@ -537,12 +537,12 @@ function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
 	do_action(
 		'wp_mail_succeeded',
 		array(
-			'to'          => $args['to'],
-			'subject'     => $args['subject'],
-			'message'     => $args['message'],
-			'headers'     => $args['headers'],
-			'attachments' => $args['attachments'],
-			'transport'   => 'enjinmel_rest',
+			'to'               => $args['to'],
+			'subject'          => $args['subject'],
+			'message'          => $args['message'],
+			'headers'          => $args['headers'],
+			'attachments'      => $args['attachments'],
+			'transport'        => 'enjinmel_rest',
 			'legacy_transport' => 'enginemail_rest',
 		)
 	);

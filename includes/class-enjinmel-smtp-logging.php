@@ -1,11 +1,12 @@
 <?php
 /**
- * EnjinMel SMTP - Logging Class
- *
- * Logs sent and failed emails to the custom table created on activation.
- * Table: {$wpdb->prefix}enjinmel_smtp_logs
+ * Logging helpers for the EnjinMel SMTP plugin.
  *
  * @package EnjinMel_SMTP
+ */
+
+/**
+ * Handles logging and retention for EnjinMel SMTP requests.
  */
 class EnjinMel_SMTP_Logging {
 
@@ -109,11 +110,11 @@ class EnjinMel_SMTP_Logging {
 
 		$entry = self::normalize_log_entry( $entry );
 
-		$wpdb->insert(
-			$table,
-			$entry,
-			array( '%s', '%s', '%s', '%s', '%s' )
-		);
+			$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Logging writes are intentionally uncached.
+				$table,
+				$entry,
+				array( '%s', '%s', '%s', '%s', '%s' )
+			);
 	}
 
 	/**
@@ -293,24 +294,25 @@ class EnjinMel_SMTP_Logging {
 		}
 
 		if ( $days > 0 ) {
-			$threshold_timestamp = strtotime( sprintf( '-%d days', $days ), current_time( 'timestamp' ) );
-			if ( false !== $threshold_timestamp ) {
-				$threshold = function_exists( 'wp_date' )
-					? wp_date( 'Y-m-d H:i:s', $threshold_timestamp )
-					: gmdate( 'Y-m-d H:i:s', $threshold_timestamp + ( get_option( 'gmt_offset', 0 ) * HOUR_IN_SECONDS ) );
-				$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE timestamp < %s", $threshold ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table name sanitized prior to interpolation.
+			$clock = current_datetime();
+			if ( $clock instanceof \DateTimeInterface ) {
+				$threshold_obj = $clock->modify( sprintf( '-%d days', $days ) );
+				if ( false !== $threshold_obj ) {
+					$threshold = $threshold_obj->format( 'Y-m-d H:i:s' );
+					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE timestamp < %s", $threshold ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
+				}
 			}
 		}
 
 		if ( $max_rows > 0 ) {
-			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table name sanitized prior to interpolation.
+			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
 			if ( $count > $max_rows ) {
 				$over_limit = $count - $max_rows;
-				$ids        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} ORDER BY timestamp ASC LIMIT %d", $over_limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table name sanitized prior to interpolation.
+				$ids        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} ORDER BY timestamp ASC LIMIT %d", $over_limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
 				if ( ! empty( $ids ) ) {
 					$ids          = array_map( 'intval', $ids );
 					$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN ({$placeholders})", $ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table name sanitized prior to interpolation; placeholders generated explicitly for ids.
+					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN ({$placeholders})", $ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table name sanitized prior to interpolation; placeholders generated explicitly for ids.
 				}
 			}
 		}

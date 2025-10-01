@@ -1,8 +1,12 @@
 <?php
 /**
- * EnjinMel API client for transactional email submissions.
+ * EnjinMel SMTP API client helpers.
  *
  * @package EnjinMel_SMTP
+ */
+
+/**
+ * EnjinMel API client for transactional email submissions.
  */
 class EnjinMel_SMTP_API_Client {
 
@@ -305,11 +309,11 @@ class EnjinMel_SMTP_API_Client {
 					);
 				}
 
-				$normalized[] = array(
-					'Filename' => sanitize_file_name( $attachment['name'] ),
-					'Content'  => base64_encode( $raw ),
-				);
-				continue;
+					$normalized[] = array(
+						'Filename' => sanitize_file_name( $attachment['name'] ),
+						'Content'  => base64_encode( $raw ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- API payload requires Base64 encoded attachments.
+					);
+					continue;
 			}
 
 			$path = realpath( $attachment );
@@ -334,15 +338,15 @@ class EnjinMel_SMTP_API_Client {
 				);
 			}
 
-			$contents = file_get_contents( $path );
+				$contents = file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local attachment from disk.
 			if ( false === $contents ) {
 				return enjinmel_smtp_wp_error( 'enjinmel_unreadable_attachment', __( 'Unable to read attachment.', 'enjinmel-smtp' ), array( 'file' => $attachment ), 'enginemail_unreadable_attachment' );
 			}
 
-			$normalized[] = array(
-				'Filename' => sanitize_file_name( wp_basename( $path ) ),
-				'Content'  => base64_encode( $contents ),
-			);
+				$normalized[] = array(
+					'Filename' => sanitize_file_name( wp_basename( $path ) ),
+					'Content'  => base64_encode( $contents ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- API payload requires Base64 encoded attachments.
+				);
 		}
 
 		return $normalized;
@@ -441,12 +445,12 @@ class EnjinMel_SMTP_API_Client {
 	/**
 	 * Parse a header list into email strings.
 	 *
-	 * @param string $list Header list value.
+	 * @param string $header_list Header list value.
 	 * @return array
 	 */
-	private static function parse_address_list( $list ) {
+	private static function parse_address_list( $header_list ) {
 		$emails = array();
-		foreach ( wp_parse_list( $list ) as $item ) {
+		foreach ( wp_parse_list( $header_list ) as $item ) {
 			$parsed = self::parse_address( $item );
 			if ( $parsed && is_email( $parsed['email'] ) ) {
 				$emails[] = $parsed['email'];

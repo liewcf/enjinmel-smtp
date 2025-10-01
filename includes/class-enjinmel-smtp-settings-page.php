@@ -16,7 +16,7 @@ class EnjinMel_SMTP_Settings_Page {
 	 * Add the settings fields for REST configuration.
 	 */
 	public static function add_settings_fields() {
-		$group  = enjinmel_smtp_settings_group();
+		$group   = enjinmel_smtp_settings_group();
 		$section = 'enjinmel_smtp_section';
 		add_settings_field(
 			'enjinmel_smtp_api_key',

@@ -34,7 +34,7 @@
 - [ ] Toggle “Enable Logging” off/on and confirm entries stop/start in `wp_enjinmel_smtp_logs`. *(Check for data in both old/new tables; drop old table once migration completes.)*
 - [ ] Send HTML emails with attachments under and over 5 MB; verify API fields `SubmittedContentType` and `IsHtmlContent` and attachment size handling. *(Capture log row for each send to ensure rename didn’t break payload normalization.)*
 - [ ] Confirm retention cron runs and deactivation unschedules the old/new events. *(Use `wp cron event list` inside wp-env to confirm only `enjinmel_smtp_retention_daily` remains.)*
-- [ ] Run PHPCS (WPCS) and fix violations; confirm all user-facing strings use the new text domain. *(Re-run after search/replace to catch new warnings.)*
+- [x] Run PHPCS (WPCS) and fix violations; confirm all user-facing strings use the new text domain. *(vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor . on 2025-10-01)*
 
 ## Coordination
 
