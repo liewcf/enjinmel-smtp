@@ -2,9 +2,9 @@
 /**
  * Lightweight wrapper around OpenSSL for option encryption.
  *
- * @package EngineMail_SMTP
+ * @package EnjinMel_SMTP
  */
-class EngineMail_SMTP_Encryption {
+class EnjinMel_SMTP_Encryption {
 
 	private const ENCRYPTION_METHOD = 'AES-256-CBC';
 
@@ -28,7 +28,7 @@ class EngineMail_SMTP_Encryption {
 
 		$cipher = openssl_encrypt( $data, self::ENCRYPTION_METHOD, $key, 0, $iv );
 		if ( false === $cipher ) {
-			return new WP_Error( 'enginemail_encryption_failed', __( 'Unable to encrypt value.', 'enginemail-smtp' ) );
+			return enjinmel_smtp_wp_error( 'enjinmel_encryption_failed', __( 'Unable to encrypt value.', 'enjinmel-smtp' ), null, 'enginemail_encryption_failed' );
 		}
 
 		return $cipher;
@@ -54,7 +54,7 @@ class EngineMail_SMTP_Encryption {
 
 		$plain = openssl_decrypt( $data, self::ENCRYPTION_METHOD, $key, 0, $iv );
 		if ( false === $plain ) {
-			return new WP_Error( 'enginemail_decryption_failed', __( 'Unable to decrypt value.', 'enginemail-smtp' ) );
+			return enjinmel_smtp_wp_error( 'enjinmel_decryption_failed', __( 'Unable to decrypt value.', 'enjinmel-smtp' ), null, 'enginemail_decryption_failed' );
 		}
 
 		return $plain;
@@ -66,23 +66,23 @@ class EngineMail_SMTP_Encryption {
 	 * @return array|WP_Error Array of key/iv binary strings or WP_Error when missing.
 	 */
 	private static function get_credentials() {
-		if ( ! defined( 'ENGINEMAIL_SMTP_KEY' ) || ! defined( 'ENGINEMAIL_SMTP_IV' ) ) {
-			return new WP_Error( 'enginemail_missing_secret', __( 'Encryption constants are not defined in wp-config.php.', 'enginemail-smtp' ) );
-		}
+	$key_source = enjinmel_smtp_get_secret_constant( 'ENJINMEL_SMTP_KEY', 'ENGINEMAIL_SMTP_KEY' );
+	$iv_source  = enjinmel_smtp_get_secret_constant( 'ENJINMEL_SMTP_IV', 'ENGINEMAIL_SMTP_IV' );
 
-		$key_source = constant( 'ENGINEMAIL_SMTP_KEY' );
-		$iv_source  = constant( 'ENGINEMAIL_SMTP_IV' );
+	if ( null === $key_source || null === $iv_source ) {
+		return enjinmel_smtp_wp_error( 'enjinmel_missing_secret', __( 'Encryption constants are not defined in wp-config.php.', 'enjinmel-smtp' ), null, 'enginemail_missing_secret' );
+	}
 
-		if ( '' === $key_source || '' === $iv_source ) {
-			return new WP_Error( 'enginemail_invalid_secret', __( 'Encryption constants cannot be empty.', 'enginemail-smtp' ) );
-		}
+	if ( '' === $key_source || '' === $iv_source ) {
+		return enjinmel_smtp_wp_error( 'enjinmel_invalid_secret', __( 'Encryption constants cannot be empty.', 'enjinmel-smtp' ), null, 'enginemail_invalid_secret' );
+	}
 
 		$key = substr( hash( 'sha256', (string) $key_source, true ), 0, 32 );
 		$iv  = substr( hash( 'sha256', (string) $iv_source, true ), 0, 16 );
 
-		if ( 32 !== strlen( $key ) || 16 !== strlen( $iv ) ) {
-			return new WP_Error( 'enginemail_secret_length', __( 'Encryption key or IV length is invalid.', 'enginemail-smtp' ) );
-		}
+	if ( 32 !== strlen( $key ) || 16 !== strlen( $iv ) ) {
+		return enjinmel_smtp_wp_error( 'enjinmel_secret_length', __( 'Encryption key or IV length is invalid.', 'enjinmel-smtp' ), null, 'enginemail_secret_length' );
+	}
 
 		return array( $key, $iv );
 	}

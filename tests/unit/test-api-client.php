@@ -1,15 +1,15 @@
 <?php
 
-if ( ! defined( 'ENGINEMAIL_SMTP_KEY' ) ) {
-    define( 'ENGINEMAIL_SMTP_KEY', 'unit-test-key' );
+if ( ! defined( 'ENJINMEL_SMTP_KEY' ) ) {
+    define( 'ENJINMEL_SMTP_KEY', 'unit-test-key' );
 }
 
-if ( ! defined( 'ENGINEMAIL_SMTP_IV' ) ) {
-    define( 'ENGINEMAIL_SMTP_IV', 'unit-test-iv' );
+if ( ! defined( 'ENJINMEL_SMTP_IV' ) ) {
+    define( 'ENJINMEL_SMTP_IV', 'unit-test-iv' );
 }
 
-if ( ! function_exists( 'enginemail_smtp_pre_wp_mail' ) ) {
-    require_once dirname( __FILE__ ) . '/../../enginemail-smtp.php';
+if ( ! function_exists( 'enjinmel_smtp_pre_wp_mail' ) ) {
+    require_once dirname( __FILE__ ) . '/../../enjinmel-smtp.php';
 }
 
 class Test_API_Client extends WP_UnitTestCase {
@@ -17,29 +17,29 @@ class Test_API_Client extends WP_UnitTestCase {
     protected function setUp(): void {
         parent::setUp();
 
-        $encrypted_key = EngineMail_SMTP_Encryption::encrypt( 'test-api-key' );
+        $encrypted_key = EnjinMel_SMTP_Encryption::encrypt( 'test-api-key' );
         if ( is_wp_error( $encrypted_key ) ) {
             $this->fail( 'Encryption setup failed in test bootstrap: ' . $encrypted_key->get_error_message() );
         }
 
-        update_option( 'enginemail_smtp_settings', array(
+        update_option( 'enjinmel_smtp_settings', array(
             'api_key'        => $encrypted_key,
             'from_email'     => 'no-reply@example.com',
-            'from_name'      => 'EngineMail QA',
+            'from_name'      => 'EnjinMel QA',
             'force_from'     => 1,
             'enable_logging' => 0,
         ) );
     }
 
     protected function tearDown(): void {
-        delete_option( 'enginemail_smtp_settings' );
+        delete_option( 'enjinmel_smtp_settings' );
         remove_all_filters( 'pre_http_request' );
         if ( function_exists( 'remove_all_actions' ) ) {
-            remove_all_actions( 'enginemail_smtp_before_send' );
-            remove_all_actions( 'enginemail_smtp_after_send' );
+            remove_all_actions( 'enjinmel_smtp_before_send' );
+            remove_all_actions( 'enjinmel_smtp_after_send' );
         } else {
-            remove_all_filters( 'enginemail_smtp_before_send' );
-            remove_all_filters( 'enginemail_smtp_after_send' );
+            remove_all_filters( 'enjinmel_smtp_before_send' );
+            remove_all_filters( 'enjinmel_smtp_after_send' );
         }
         parent::tearDown();
     }
@@ -57,14 +57,14 @@ class Test_API_Client extends WP_UnitTestCase {
             );
         }, 10, 3 );
 
-        add_action( 'enginemail_smtp_before_send', function( $normalized, $payload ) use ( &$before_hook ) {
+        add_action( 'enjinmel_smtp_before_send', function( $normalized, $payload ) use ( &$before_hook ) {
             $before_hook = array(
                 'normalized' => $normalized,
                 'payload'    => $payload,
             );
         }, 10, 2 );
 
-        add_action( 'enginemail_smtp_after_send', function( $normalized, $payload, $response ) use ( &$after_hook ) {
+        add_action( 'enjinmel_smtp_after_send', function( $normalized, $payload, $response ) use ( &$after_hook ) {
             $after_hook = array(
                 'normalized' => $normalized,
                 'payload'    => $payload,
@@ -81,12 +81,12 @@ class Test_API_Client extends WP_UnitTestCase {
         $this->assertSame( 'recipient@example.com', $payload['ToEmail'] );
         $this->assertSame( 'REST Subject', $payload['Subject'] );
         $this->assertSame( 'no-reply@example.com', $payload['SenderEmail'] );
-        $this->assertSame( 'EngineMail QA', $payload['SenderName'] );
+        $this->assertSame( 'EnjinMel QA', $payload['SenderName'] );
         $this->assertSame( 'text/plain', $payload['SubmittedContentType'] );
         $this->assertFalse( $payload['IsHtmlContent'] );
 
-        $this->assertNotEmpty( $before_hook, 'enginemail_smtp_before_send should receive data.' );
-        $this->assertNotEmpty( $after_hook, 'enginemail_smtp_after_send should receive data.' );
+        $this->assertNotEmpty( $before_hook, 'enjinmel_smtp_before_send should receive data.' );
+        $this->assertNotEmpty( $after_hook, 'enjinmel_smtp_after_send should receive data.' );
         $this->assertSame( $payload['Subject'], $before_hook['payload']['Subject'], 'Before hook payload should match submission payload.' );
         $this->assertSame( $payload['Subject'], $after_hook['payload']['Subject'], 'After hook payload should match submission payload.' );
         $this->assertSame( 'recipient@example.com', $before_hook['normalized']['to'][0], 'Normalized recipient should be passed to before hook.' );
@@ -95,11 +95,13 @@ class Test_API_Client extends WP_UnitTestCase {
     }
 
     public function test_wp_mail_errors_when_api_key_missing() {
-        delete_option( 'enginemail_smtp_settings' );
+        delete_option( 'enjinmel_smtp_settings' );
 
         $result = wp_mail( 'recipient@example.com', 'Subject', 'Body' );
 
         $this->assertInstanceOf( WP_Error::class, $result, 'wp_mail should return WP_Error when API key is missing.' );
-        $this->assertContains( 'enginemail_rest_failure', $result->get_error_codes(), 'Expected EngineMail error code to be present.' );
+        $error_codes = $result->get_error_codes();
+        $this->assertContains( 'enjinmel_rest_failure', $error_codes, 'Expected EnjinMel error code to be present.' );
+        $this->assertContains( 'enginemail_rest_failure', $error_codes, 'Expected legacy EngineMail error code to remain for compatibility.' );
     }
 }

@@ -1,15 +1,15 @@
 <?php
 
-if ( ! defined( 'ENGINEMAIL_SMTP_KEY' ) ) {
-    define( 'ENGINEMAIL_SMTP_KEY', 'integration-test-key' );
+if ( ! defined( 'ENJINMEL_SMTP_KEY' ) ) {
+    define( 'ENJINMEL_SMTP_KEY', 'integration-test-key' );
 }
 
-if ( ! defined( 'ENGINEMAIL_SMTP_IV' ) ) {
-    define( 'ENGINEMAIL_SMTP_IV', 'integration-test-iv' );
+if ( ! defined( 'ENJINMEL_SMTP_IV' ) ) {
+    define( 'ENJINMEL_SMTP_IV', 'integration-test-iv' );
 }
 
-if ( ! function_exists( 'enginemail_smtp_pre_wp_mail' ) ) {
-    require_once dirname( __FILE__ ) . '/../../enginemail-smtp.php';
+if ( ! function_exists( 'enjinmel_smtp_pre_wp_mail' ) ) {
+    require_once dirname( __FILE__ ) . '/../../enjinmel-smtp.php';
 }
 
 class Test_Email_Sending extends WP_UnitTestCase {
@@ -17,15 +17,15 @@ class Test_Email_Sending extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
-        $encrypted_key = EngineMail_SMTP_Encryption::encrypt( 'integration-api-key' );
+        $encrypted_key = EnjinMel_SMTP_Encryption::encrypt( 'integration-api-key' );
         if ( is_wp_error( $encrypted_key ) ) {
             $this->fail( 'Failed to encrypt API key for integration test: ' . $encrypted_key->get_error_message() );
         }
 
-        update_option( 'enginemail_smtp_settings', array(
+        update_option( 'enjinmel_smtp_settings', array(
             'api_key'        => $encrypted_key,
             'from_email'     => 'no-reply@example.com',
-            'from_name'      => 'EngineMail Integration',
+            'from_name'      => 'EnjinMel Integration',
             'campaign_name'  => 'WordPress Integration',
             'force_from'     => 0,
             'enable_logging' => 1,
@@ -33,7 +33,7 @@ class Test_Email_Sending extends WP_UnitTestCase {
     }
 
     public function tearDown(): void {
-        delete_option( 'enginemail_smtp_settings' );
+        delete_option( 'enjinmel_smtp_settings' );
         remove_all_filters( 'pre_http_request' );
         remove_all_actions( 'wp_mail_succeeded' );
         parent::tearDown();
@@ -72,6 +72,8 @@ class Test_Email_Sending extends WP_UnitTestCase {
         $this->assertTrue( $result );
         $this->assertNotNull( $action_payload );
         $this->assertSame( 'primary@example.com', is_array( $action_payload['to'] ) ? $action_payload['to'][0] : $action_payload['to'] );
+        $this->assertSame( 'enjinmel_rest', $action_payload['transport'] );
+        $this->assertSame( 'enginemail_rest', $action_payload['legacy_transport'] );
 
         $this->assertCount( 1, $requests );
         $payload = json_decode( $requests[0]['args']['body'], true );

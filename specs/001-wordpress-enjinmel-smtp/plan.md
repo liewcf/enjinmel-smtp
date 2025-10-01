@@ -1,5 +1,7 @@
 # Implementation Plan: [FEATURE]
 
+> _Note: Template inherited from the original EngineMail SMTP effort; update file paths to `enjinmel-smtp` when instantiating._
+
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 

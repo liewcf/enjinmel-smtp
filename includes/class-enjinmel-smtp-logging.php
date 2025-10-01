@@ -1,15 +1,16 @@
 <?php
 /**
- * EngineMail SMTP - Logging Class
+ * EnjinMel SMTP - Logging Class
  *
  * Logs sent and failed emails to the custom table created on activation.
- * Table: {$wpdb->prefix}enginemail_smtp_logs
+ * Table: {$wpdb->prefix}enjinmel_smtp_logs
  *
- * @package EngineMail_SMTP
+ * @package EnjinMel_SMTP
  */
-class EngineMail_SMTP_Logging {
+class EnjinMel_SMTP_Logging {
 
-	private const CRON_HOOK = 'enginemail_smtp_purge_logs';
+	private const CRON_HOOK        = 'enjinmel_smtp_retention_daily';
+	private const LEGACY_CRON_HOOK = 'enginemail_smtp_purge_logs';
 
 	/**
 	 * Initialize hooks.
@@ -18,8 +19,9 @@ class EngineMail_SMTP_Logging {
 		add_action( 'wp_mail_succeeded', array( __CLASS__, 'on_mail_succeeded' ), 10, 1 );
 		add_action( 'wp_mail_failed', array( __CLASS__, 'on_mail_failed' ), 10, 1 );
 		add_action( self::CRON_HOOK, array( __CLASS__, 'purge_logs' ) );
+		add_action( self::LEGACY_CRON_HOOK, array( __CLASS__, 'purge_logs' ) );
 
-		self::schedule_purge_event();
+		self::schedule_events();
 	}
 
 	/**
@@ -56,7 +58,7 @@ class EngineMail_SMTP_Logging {
 		$to_emails = self::normalize_recipients( $to );
 		$subject   = self::normalize_subject( $subject_v );
 
-		$message = is_object( $wp_error ) ? $wp_error->get_error_message() : __( 'Unknown error.', 'enginemail-smtp' );
+		$message = is_object( $wp_error ) ? $wp_error->get_error_message() : __( 'Unknown error.', 'enjinmel-smtp' );
 		$message = is_string( $message ) ? $message : ''; // ensure string
 
 		self::insert_log( 'failed', $to_emails, $subject, $message );
@@ -74,7 +76,7 @@ class EngineMail_SMTP_Logging {
 	private static function insert_log( $status, $to_emails, $subject, $error_message ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'enginemail_smtp_logs';
+		$table = enjinmel_smtp_active_log_table();
 
 		// Ensure bounds for VARCHAR columns.
 		$to_emails     = self::truncate( $to_emails, 255 );
@@ -98,6 +100,7 @@ class EngineMail_SMTP_Logging {
 		 * @param string $subject       Normalized subject line.
 		 * @param string $error_message Error message string (empty when not applicable).
 		 */
+		$entry = apply_filters( 'enjinmel_smtp_log_entry', $entry, $status, $to_emails, $subject, $error_message );
 		$entry = apply_filters( 'enginemail_smtp_log_entry', $entry, $status, $to_emails, $subject, $error_message );
 
 		if ( ! is_array( $entry ) ) {
@@ -119,7 +122,7 @@ class EngineMail_SMTP_Logging {
 	 * @return bool
 	 */
 	private static function is_enabled() {
-		$opts = get_option( 'enginemail_smtp_settings', array() );
+		$opts = enjinmel_smtp_get_settings( array() );
 		if ( ! is_array( $opts ) ) {
 			return true;
 		}
@@ -225,6 +228,16 @@ class EngineMail_SMTP_Logging {
 	}
 
 	/**
+	 * Public wrapper used by activation routines to ensure events are scheduled.
+	 *
+	 * @return void
+	 */
+	public static function schedule_events() {
+		self::unschedule_events();
+		self::schedule_purge_event();
+	}
+
+	/**
 	 * Unschedule the daily purge event.
 	 *
 	 * @return void
@@ -232,6 +245,7 @@ class EngineMail_SMTP_Logging {
 	public static function unschedule_events() {
 		if ( function_exists( 'wp_clear_scheduled_hook' ) ) {
 			wp_clear_scheduled_hook( self::CRON_HOOK );
+			wp_clear_scheduled_hook( self::LEGACY_CRON_HOOK );
 		}
 	}
 
@@ -241,15 +255,39 @@ class EngineMail_SMTP_Logging {
 	 * @return void
 	 */
 	public static function purge_logs() {
+		$tables = array_unique(
+			array(
+				enjinmel_smtp_log_table_name(),
+				enjinmel_smtp_legacy_log_table_name(),
+			)
+		);
+
+		$days = (int) apply_filters( 'enjinmel_smtp_retention_days', 90 );
+		$days = (int) apply_filters( 'enginemail_smtp_retention_days', $days );
+
+		$max_rows = (int) apply_filters( 'enjinmel_smtp_retention_max_rows', 10000 );
+		$max_rows = (int) apply_filters( 'enginemail_smtp_retention_max_rows', $max_rows );
+
+		foreach ( $tables as $table ) {
+			self::purge_table( $table, $days, $max_rows );
+		}
+	}
+
+	/**
+	 * Purge a specific log table according to retention rules.
+	 *
+	 * @param string $table    Table name.
+	 * @param int    $days     Day-based retention limit.
+	 * @param int    $max_rows Maximum number of rows to keep.
+	 * @return void
+	 */
+	private static function purge_table( $table, $days, $max_rows ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'enginemail_smtp_logs';
-
-		if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) {
+		if ( ! enjinmel_smtp_table_exists( $table ) ) {
 			return;
 		}
 
-		$days = (int) apply_filters( 'enginemail_smtp_retention_days', 90 );
 		if ( $days > 0 ) {
 			$threshold_timestamp = strtotime( sprintf( '-%d days', $days ), current_time( 'timestamp' ) );
 			if ( false !== $threshold_timestamp ) {
@@ -260,7 +298,6 @@ class EngineMail_SMTP_Logging {
 			}
 		}
 
-		$max_rows = (int) apply_filters( 'enginemail_smtp_retention_max_rows', 10000 );
 		if ( $max_rows > 0 ) {
 			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 			if ( $count > $max_rows ) {

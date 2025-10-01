@@ -1,4 +1,6 @@
-# Research for EngineMail SMTP Plugin
+# Research for EnjinMel SMTP Plugin
+
+> _Compiled prior to the EnjinMel rename; update comparative notes if vendor names change._
 
 ## 1. Testing Framework
 

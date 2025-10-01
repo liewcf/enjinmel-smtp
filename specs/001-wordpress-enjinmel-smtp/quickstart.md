@@ -1,4 +1,6 @@
-# Quickstart for EngineMail SMTP Plugin Development
+# Quickstart for EnjinMel SMTP Plugin Development
+
+> _Updated after the 2025-10-01 rename from EngineMail SMTP; replace any lingering `enginemail` references with `enjinmel` when following these steps._
 
 ## 1. Prerequisites
 
@@ -10,7 +12,7 @@
 ## 2. Setup
 
 1.  Clone the repository into your `wp-content/plugins` directory.
-2.  Navigate to the plugin directory: `cd wp-content/plugins/enginemail-smtp`
+2.  Navigate to the plugin directory: `cd wp-content/plugins/enjinmel-smtp`
 3.  Install PHP dependencies: `composer install`
 4.  Install JavaScript dependencies: `npm install`
 5.  Activate the plugin in the WordPress admin dashboard.
@@ -22,6 +24,6 @@
 
 ## 4. Basic Usage
 
-1.  Go to "Settings" -> "EngineMail SMTP" in the WordPress admin.
-2.  Configure your EngineMail SMTP credentials.
+1.  Go to "Settings" -> "EnjinMel SMTP" in the WordPress admin.
+2.  Configure your EnjinMel SMTP credentials.
 3.  Send a test email to verify your settings.
