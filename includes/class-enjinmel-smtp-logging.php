@@ -59,7 +59,7 @@ class EnjinMel_SMTP_Logging {
 		$subject   = self::normalize_subject( $subject_v );
 
 		$message = is_object( $wp_error ) ? $wp_error->get_error_message() : __( 'Unknown error.', 'enjinmel-smtp' );
-		$message = is_string( $message ) ? $message : ''; // ensure string
+		$message = is_string( $message ) ? $message : ''; // Ensure string.
 
 		self::insert_log( 'failed', $to_emails, $subject, $message );
 	}
@@ -81,7 +81,7 @@ class EnjinMel_SMTP_Logging {
 		// Ensure bounds for VARCHAR columns.
 		$to_emails     = self::truncate( $to_emails, 255 );
 		$subject       = self::truncate( $subject, 255 );
-		$error_message = (string) $error_message; // TEXT
+		$error_message = (string) $error_message; // TEXT column expects string.
 
 		$entry = array(
 			'timestamp'     => current_time( 'mysql' ),
@@ -262,6 +262,10 @@ class EnjinMel_SMTP_Logging {
 			)
 		);
 
+		$tables = array_filter(
+			array_map( 'enjinmel_smtp_sanitize_table_name', $tables )
+		);
+
 		$days = (int) apply_filters( 'enjinmel_smtp_retention_days', 90 );
 		$days = (int) apply_filters( 'enginemail_smtp_retention_days', $days );
 
@@ -294,19 +298,19 @@ class EnjinMel_SMTP_Logging {
 				$threshold = function_exists( 'wp_date' )
 					? wp_date( 'Y-m-d H:i:s', $threshold_timestamp )
 					: gmdate( 'Y-m-d H:i:s', $threshold_timestamp + ( get_option( 'gmt_offset', 0 ) * HOUR_IN_SECONDS ) );
-				$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE timestamp < %s", $threshold ) );
+				$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE timestamp < %s", $threshold ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table name sanitized prior to interpolation.
 			}
 		}
 
 		if ( $max_rows > 0 ) {
-			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table name sanitized prior to interpolation.
 			if ( $count > $max_rows ) {
 				$over_limit = $count - $max_rows;
-				$ids        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} ORDER BY timestamp ASC LIMIT %d", $over_limit ) );
+				$ids        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} ORDER BY timestamp ASC LIMIT %d", $over_limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table name sanitized prior to interpolation.
 				if ( ! empty( $ids ) ) {
 					$ids          = array_map( 'intval', $ids );
 					$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN ({$placeholders})", $ids ) );
+					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN ({$placeholders})", $ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table name sanitized prior to interpolation; placeholders generated explicitly for ids.
 				}
 			}
 		}

@@ -26,7 +26,6 @@
 - [x] Update i18n loader to the new text domain and scan strings. *(Text domains loaded for both new and legacy identifiers.)*
 - [x] Update composer.json (package name/description/autoload if class namespace changes). *(Composer metadata now references EnjinMel rename.)*
 - [x] Update README, AGENTS.md, memory notes, specs, and screenshots to reflect EnjinMel. *(README + docs updated; specs renamed with rename notes. Screenshots pending if/when UI captured.)*
-- [ ] Tag a pre-rename commit for rollback, then open a PR with the migration plan.
 
 ## Verification Checklist (post-rename)
 

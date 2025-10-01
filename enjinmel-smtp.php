@@ -132,6 +132,16 @@ function enjinmel_smtp_active_log_table() {
 }
 
 /**
+ * Sanitize a table name before interpolating into queries.
+ *
+ * @param string $table Raw table name.
+ * @return string
+ */
+function enjinmel_smtp_sanitize_table_name( $table ) {
+	return preg_replace( '/[^A-Za-z0-9_]/', '', (string) $table );
+}
+
+/**
  * Retrieve plugin settings with legacy fallback.
  *
  * @param array $default Default value when no settings are found.
@@ -233,12 +243,15 @@ function enjinmel_smtp_maybe_migrate_logs() {
 		return;
 	}
 
-	$has_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$new_table}" );
+	$new_table_sanitized    = enjinmel_smtp_sanitize_table_name( $new_table );
+	$legacy_table_sanitized = enjinmel_smtp_sanitize_table_name( $legacy_table );
+
+	$has_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$new_table_sanitized}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table name built from known plugin constant and sanitized prior to interpolation.
 	if ( $has_rows > 0 ) {
 		return;
 	}
 
-	$wpdb->query( "INSERT INTO {$new_table} (timestamp, to_email, subject, status, error_message) SELECT timestamp, to_email, subject, status, error_message FROM {$legacy_table}" );
+	$wpdb->query( "INSERT INTO {$new_table_sanitized} (timestamp, to_email, subject, status, error_message) SELECT timestamp, to_email, subject, status, error_message FROM {$legacy_table_sanitized}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table names sourced from plugin constants and sanitized before interpolation.
 }
 
 /**
@@ -247,7 +260,12 @@ function enjinmel_smtp_maybe_migrate_logs() {
  * @return void
  */
 function enjinmel_smtp_redirect_legacy_settings() {
-	if ( isset( $_GET['page'] ) && enjinmel_sanitize_query_arg( wp_unslash( $_GET['page'] ) ) === enjinmel_smtp_legacy_settings_group() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Intentional read-only inspection.
+		return;
+	}
+
+	$page = sanitize_key( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Value is read-only and sanitized immediately.
+	if ( enjinmel_smtp_legacy_settings_group() === $page ) {
 		wp_safe_redirect( admin_url( 'options-general.php?page=' . enjinmel_smtp_settings_group() ) );
 		exit;
 	}
