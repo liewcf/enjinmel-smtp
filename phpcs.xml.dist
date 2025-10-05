@@ -20,4 +20,9 @@
     <file>enjinmel-smtp.php</file>
     <file>uninstall.php</file>
     <file>includes</file>
+
+    <!-- Suppress nonce verification recommendations for read-only GET usage in the log viewer -->
+    <rule ref="WordPress.Security.NonceVerification">
+        <exclude-pattern>includes/class-enjinmel-smtp-log-viewer.php</exclude-pattern>
+    </rule>
 </ruleset>
