@@ -38,15 +38,6 @@ function enjinmel_smtp_option_key() {
 }
 
 /**
- * Return the legacy option key used before the rename.
- *
- * @return string
- */
-function enjinmel_smtp_legacy_option_key() {
-	return 'enginemail_smtp_settings';
-}
-
-/**
  * Return the settings group slug registered with WordPress.
  *
  * @return string
@@ -56,30 +47,12 @@ function enjinmel_smtp_settings_group() {
 }
 
 /**
- * Return the legacy settings group slug.
- *
- * @return string
- */
-function enjinmel_smtp_legacy_settings_group() {
-	return 'enginemail_smtp';
-}
-
-/**
  * Return the cron hook name used for log retention.
  *
  * @return string
  */
 function enjinmel_smtp_cron_hook() {
 	return 'enjinmel_smtp_retention_daily';
-}
-
-/**
- * Return the legacy cron hook used prior to the rename.
- *
- * @return string
- */
-function enjinmel_smtp_legacy_cron_hook() {
-	return 'enginemail_smtp_purge_logs';
 }
 
 /**
@@ -93,16 +66,7 @@ function enjinmel_smtp_log_table_name() {
 	return $wpdb->prefix . 'enjinmel_smtp_logs';
 }
 
-/**
- * Return the legacy log table name.
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- * @return string
- */
-function enjinmel_smtp_legacy_log_table_name() {
-	global $wpdb;
-	return $wpdb->prefix . 'enginemail_smtp_logs';
-}
+
 
 /**
  * Determine if a specific table exists.
@@ -117,23 +81,12 @@ function enjinmel_smtp_table_exists( $table ) {
 }
 
 /**
- * Resolve the active log table, preferring the renamed table.
+ * Resolve the active log table.
  *
  * @return string
  */
 function enjinmel_smtp_active_log_table() {
-	$new    = enjinmel_smtp_log_table_name();
-	$legacy = enjinmel_smtp_legacy_log_table_name();
-
-	if ( enjinmel_smtp_table_exists( $new ) ) {
-		return $new;
-	}
-
-	if ( enjinmel_smtp_table_exists( $legacy ) ) {
-		return $legacy;
-	}
-
-	return $new;
+	return enjinmel_smtp_log_table_name();
 }
 
 /**
@@ -147,16 +100,13 @@ function enjinmel_smtp_sanitize_table_name( $table ) {
 }
 
 /**
- * Retrieve plugin settings with legacy fallback.
+ * Retrieve plugin settings.
  *
  * @param  array $default_value Default value when no settings are found.
  * @return array
  */
 function enjinmel_smtp_get_settings( $default_value = array() ) {
-	$settings = get_option( enjinmel_smtp_option_key(), null );
-	if ( null === $settings ) {
-		$settings = get_option( enjinmel_smtp_legacy_option_key(), null );
-	}
+	$settings = get_option( enjinmel_smtp_option_key(), $default_value );
 
 	if ( ! is_array( $settings ) ) {
 		return $default_value;
@@ -176,7 +126,7 @@ function enjinmel_smtp_update_settings( array $settings ) {
 }
 
 /**
- * Retrieve a specific setting key with legacy fallback.
+ * Retrieve a specific setting key.
  *
  * @param  string $key           Settings key.
  * @param  mixed  $default_value Default value when key is missing.
@@ -184,98 +134,10 @@ function enjinmel_smtp_update_settings( array $settings ) {
  */
 function enjinmel_smtp_get_setting( $key, $default_value = null ) {
 	$settings = enjinmel_smtp_get_settings();
-	if ( isset( $settings[ $key ] ) ) {
-		return $settings[ $key ];
-	}
-
-	$legacy = get_option( enjinmel_smtp_legacy_option_key(), array() );
-	if ( is_array( $legacy ) && array_key_exists( $key, $legacy ) ) {
-		return $legacy[ $key ];
-	}
-
-	return $default_value;
+	return isset( $settings[ $key ] ) ? $settings[ $key ] : $default_value;
 }
 
-/**
- * Fetch a secret constant, supporting legacy names.
- *
- * @param  string $constant     New constant name.
- * @param  string $legacy_const Legacy constant name.
- * @return string|null
- */
-function enjinmel_smtp_get_secret_constant( $constant, $legacy_const ) {
-	if ( defined( $constant ) && '' !== constant( $constant ) ) {
-		return constant( $constant );
-	}
 
-	if ( defined( $legacy_const ) && '' !== constant( $legacy_const ) ) {
-		return constant( $legacy_const );
-	}
-
-	return null;
-}
-
-/**
- * Copy legacy settings to the new option name when the new option is empty.
- *
- * @return void
- */
-function enjinmel_smtp_maybe_migrate_settings() {
-	$new    = get_option( enjinmel_smtp_option_key(), null );
-	$legacy = get_option( enjinmel_smtp_legacy_option_key(), null );
-
-	if ( null === $new && is_array( $legacy ) ) {
-		enjinmel_smtp_update_settings( $legacy );
-	}
-}
-
-/**
- * Copy rows from the legacy log table into the renamed table the first time it is created.
- *
- * @return void
- */
-function enjinmel_smtp_maybe_migrate_logs() {
-	global $wpdb;
-
-	$new_table    = enjinmel_smtp_log_table_name();
-	$legacy_table = enjinmel_smtp_legacy_log_table_name();
-
-	if ( $new_table === $legacy_table ) {
-		return;
-	}
-
-	if ( ! enjinmel_smtp_table_exists( $new_table ) || ! enjinmel_smtp_table_exists( $legacy_table ) ) {
-		return;
-	}
-
-	$new_table_sanitized    = enjinmel_smtp_sanitize_table_name( $new_table );
-	$legacy_table_sanitized = enjinmel_smtp_sanitize_table_name( $legacy_table );
-
-	$has_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$new_table_sanitized}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name built from known plugin constant and sanitized prior to interpolation.
-	if ( $has_rows > 0 ) {
-		return;
-	}
-
-	$wpdb->query( "INSERT INTO {$new_table_sanitized} (timestamp, to_email, subject, status, error_message) SELECT timestamp, to_email, subject, status, error_message FROM {$legacy_table_sanitized}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table names sourced from plugin constants and sanitized before interpolation.
-}
-
-/**
- * Ensure the legacy settings URL redirects to the new slug.
- *
- * @return void
- */
-function enjinmel_smtp_redirect_legacy_settings() {
-	if ( ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Intentional read-only inspection.
-		return;
-	}
-
-	$page = sanitize_key( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Value is read-only and sanitized immediately.
-	if ( enjinmel_smtp_legacy_settings_group() === $page ) {
-		wp_safe_redirect( admin_url( 'admin.php?page=' . enjinmel_smtp_settings_group() ) );
-		exit;
-	}
-}
-add_action( 'admin_init', 'enjinmel_smtp_redirect_legacy_settings', 5 );
 
 /**
  * Handle export logs action.
@@ -308,42 +170,15 @@ function enjinmel_sanitize_query_arg( $value ) {
 }
 
 /**
- * Create a WP_Error that includes a legacy error code for backwards compatibility.
- *
- * @param  string     $code        New error code.
- * @param  string     $message     Error message.
- * @param  mixed      $data        Optional error data.
- * @param  string|nil $legacy_code Legacy error code to append.
- * @return WP_Error
- */
-function enjinmel_smtp_wp_error( $code, $message, $data = null, $legacy_code = null ) {
-	$error = new WP_Error();
-	$error->add( $code, $message, $data );
-	if ( null !== $legacy_code ) {
-		$error->add( $legacy_code, $message, $data );
-	}
-	return $error;
-}
-
-/**
- * Load plugin translations for both new and legacy text domains.
+ * Load plugin translations.
  *
  * @return void
  */
 function enjinmel_smtp_load_textdomains() {
 	$locale_path = dirname( plugin_basename( __FILE__ ) ) . '/languages/';
 	load_plugin_textdomain( 'enjinmel-smtp', false, $locale_path );
-	load_plugin_textdomain( 'enginemail-smtp', false, $locale_path );
 }
 add_action( 'plugins_loaded', 'enjinmel_smtp_load_textdomains', 0 );
-
-add_action(
-	'plugins_loaded',
-	static function () {
-		enjinmel_smtp_maybe_migrate_settings();
-		enjinmel_smtp_maybe_migrate_logs();
-	}
-);
 
 /**
  * Add the settings page to the admin menu.
@@ -380,15 +215,6 @@ function enjinmel_smtp_settings_init() {
 		enjinmel_smtp_option_key(),
 		array(
 			'sanitize_callback' => 'enjinmel_smtp_settings_sanitize',
-		)
-	);
-
-	// Allow the legacy settings group to continue saving without fatal errors.
-	register_setting(
-		enjinmel_smtp_legacy_settings_group(),
-		enjinmel_smtp_legacy_option_key(),
-		array(
-			'sanitize_callback' => 'enjinmel_smtp_settings_sanitize_legacy',
 		)
 	);
 
@@ -503,20 +329,6 @@ function enjinmel_smtp_settings_sanitize( $input ) {
 }
 
 /**
- * Sanitize legacy settings submissions and migrate them to the new option key.
- *
- * @param  array $input Raw settings payload from legacy form.
- * @return array
- */
-function enjinmel_smtp_settings_sanitize_legacy( $input ) {
-	$sanitized = enjinmel_smtp_settings_sanitize( $input );
-	if ( ! empty( $sanitized ) ) {
-		enjinmel_smtp_update_settings( $sanitized );
-	}
-	return $sanitized;
-}
-
-/**
  * Short-circuit wp_mail() to submit messages via the Enginemailer REST API.
  *
  * @param  null|bool|WP_Error $preemptive_return Preemptive return value.
@@ -535,35 +347,17 @@ function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
 			'wp_mail_failed',
 			$response->get_error_message(),
 			array(
-				'to'               => $args['to'],
-				'subject'          => $args['subject'],
-				'message'          => $args['message'],
-				'headers'          => $args['headers'],
-				'attachments'      => $args['attachments'],
-				'transport'        => 'enjinmel_rest',
-				'legacy_transport' => 'enginemail_rest',
-				'engine_error'     => array(
-					'code' => $response->get_error_code(),
-					'data' => $response->get_error_data(),
-				),
+				'to'          => $args['to'],
+				'subject'     => $args['subject'],
+				'message'     => $args['message'],
+				'headers'     => $args['headers'],
+				'attachments' => $args['attachments'],
+				'transport'   => 'enjinmel_rest',
 			)
 		);
 
 		$error->add(
 			'enjinmel_rest_failure',
-			$response->get_error_message(),
-			$response->get_error_data()
-		);
-
-		$error->add(
-			'enginemail_rest_failure',
-			$response->get_error_message(),
-			$response->get_error_data()
-		);
-
-		// Preserve the specific provider error code for debugging.
-		$error->add(
-			$response->get_error_code(),
 			$response->get_error_message(),
 			$response->get_error_data()
 		);
@@ -581,13 +375,12 @@ function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
 	do_action(
 		'wp_mail_succeeded',
 		array(
-			'to'               => $args['to'],
-			'subject'          => $args['subject'],
-			'message'          => $args['message'],
-			'headers'          => $args['headers'],
-			'attachments'      => $args['attachments'],
-			'transport'        => 'enjinmel_rest',
-			'legacy_transport' => 'enginemail_rest',
+			'to'          => $args['to'],
+			'subject'     => $args['subject'],
+			'message'     => $args['message'],
+			'headers'     => $args['headers'],
+			'attachments' => $args['attachments'],
+			'transport'   => 'enjinmel_rest',
 		)
 	);
 
@@ -628,9 +421,6 @@ function enjinmel_smtp_activate() {
     ) {$charset_collate};";
 
 	dbDelta( $sql );
-
-	enjinmel_smtp_maybe_migrate_settings();
-	enjinmel_smtp_maybe_migrate_logs();
 
 	if ( class_exists( 'EnjinMel_SMTP_Logging' ) ) {
 		EnjinMel_SMTP_Logging::schedule_events();

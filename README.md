@@ -13,9 +13,8 @@ Replace WordPress default email sending with the Enginemailer REST API for enhan
 
 - **EnjinMel SMTP** - The name of this WordPress plugin
 - **Enginemailer** - The third-party email delivery API service (https://enginemailer.com)
-- **EngineMail** - Legacy naming convention maintained for backward compatibility with existing integrations
 
-This plugin connects your WordPress site to the Enginemailer service API. It maintains legacy EngineMail hooks to ensure existing customizations continue working.
+This plugin connects your WordPress site to the Enginemailer service API.
 
 ## Features
 
@@ -27,7 +26,6 @@ This plugin connects your WordPress site to the Enginemailer service API. It mai
 - **Log Management** - Automatic log retention with configurable cleanup schedules
 - **Admin Interface** - User-friendly settings page with advanced log viewer
 - **Export Capability** - Export logs to CSV for analysis
-- **Legacy Compatible** - Maintains EngineMail hooks for existing integrations
 - **Security First** - Nonce verification, input sanitization, output escaping throughout
 
 ## Requirements
@@ -245,16 +243,6 @@ Works seamlessly with any plugin using `wp_mail()`:
 - ✅ BuddyPress
 - ✅ bbPress
 
-### Legacy EngineMail
-
-Maintains backward compatibility with legacy EngineMail hooks:
-
-- `enginemail_smtp_payload`
-- `enginemail_smtp_before_send`
-- `enginemail_smtp_after_send`
-- `enginemail_smtp_request_timeout`
-- `enginemail_smtp_retention_days`
-
 ## Uninstallation
 
 Upon deactivation:
@@ -282,7 +270,6 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 - Email logging and management
 - Admin log viewer with filtering and export
 - Security: encrypted storage, sanitization, escaping
-- Legacy EngineMail compatibility
 
 ## Support
 
@@ -316,7 +303,6 @@ This project is licensed under the GNU General Public License v2.0 or later - se
 
 - Built for the WordPress community
 - Integrates with Enginemailer email service
-- Maintains backward compatibility with legacy EngineMail implementations
 
 ---
 

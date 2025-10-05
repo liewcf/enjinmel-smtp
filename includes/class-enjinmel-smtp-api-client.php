@@ -45,7 +45,6 @@ class EnjinMel_SMTP_API_Client {
 		 * @param array $settings  Plugin settings.
 		 */
 		$payload = apply_filters( 'enjinmel_smtp_payload', $payload, $normalized, $settings );
-		$payload = apply_filters( 'enginemail_smtp_payload', $payload, $normalized, $settings );
 
 		/**
 		 * Fires immediately before the EnjinMel REST request is dispatched.
@@ -54,10 +53,8 @@ class EnjinMel_SMTP_API_Client {
 		 * @param array $payload    Request payload that will be submitted.
 		 */
 		do_action( 'enjinmel_smtp_before_send', $normalized, $payload );
-		do_action( 'enginemail_smtp_before_send', $normalized, $payload );
 
 		$timeout = apply_filters( 'enjinmel_smtp_request_timeout', 15, $normalized, $payload, $settings );
-		$timeout = apply_filters( 'enginemail_smtp_request_timeout', $timeout, $normalized, $payload, $settings );
 
 		$request_args = array(
 			'headers' => array(
@@ -75,18 +72,15 @@ class EnjinMel_SMTP_API_Client {
 		 * @param array $payload      EnjinMel payload.
 		 */
 		$request_args = apply_filters( 'enjinmel_smtp_request_args', $request_args, $payload, $normalized, $settings );
-		$request_args = apply_filters( 'enginemail_smtp_request_args', $request_args, $payload, $normalized, $settings );
 
 		$response = wp_remote_post( self::ENDPOINT, $request_args );
 		if ( is_wp_error( $response ) ) {
-			$result = enjinmel_smtp_wp_error(
+			$result = new WP_Error(
 				'enjinmel_http_error',
 				__( 'Unable to reach the EnjinMel API.', 'enjinmel-smtp' ),
-				array( 'error' => $response ),
-				'enginemail_http_error'
+				array( 'error' => $response )
 			);
 			do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $result );
-			do_action( 'enginemail_smtp_after_send', $normalized, $payload, $result );
 			return $result;
 		}
 
@@ -95,7 +89,7 @@ class EnjinMel_SMTP_API_Client {
 		$body     = json_decode( $body_raw, true );
 
 		if ( 200 !== (int) $code ) {
-			$result = enjinmel_smtp_wp_error(
+			$result = new WP_Error(
 				'enjinmel_http_status',
 				sprintf(
 					/* translators: %d: HTTP status code */
@@ -105,23 +99,19 @@ class EnjinMel_SMTP_API_Client {
 				array(
 					'code' => $code,
 					'body' => $body_raw,
-				),
-				'enginemail_http_status'
+				)
 			);
 			do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $result );
-			do_action( 'enginemail_smtp_after_send', $normalized, $payload, $result );
 			return $result;
 		}
 
 		if ( ! is_array( $body ) ) {
-			$result = enjinmel_smtp_wp_error(
+			$result = new WP_Error(
 				'enjinmel_invalid_response',
 				__( 'Unexpected EnjinMel API response.', 'enjinmel-smtp' ),
-				array( 'body' => $body_raw ),
-				'enginemail_invalid_response'
+				array( 'body' => $body_raw )
 			);
 			do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $result );
-			do_action( 'enginemail_smtp_after_send', $normalized, $payload, $result );
 			return $result;
 		}
 
@@ -130,14 +120,12 @@ class EnjinMel_SMTP_API_Client {
 
 		if ( '200' !== $status && 'OK' !== strtoupper( $status ) ) {
 			$message      = isset( $result['Message'] ) ? $result['Message'] : __( 'Unknown error.', 'enjinmel-smtp' );
-			$result_error = enjinmel_smtp_wp_error( 'enjinmel_api_error', $message, array( 'response' => $body ), 'enginemail_api_error' );
+			$result_error = new WP_Error( 'enjinmel_api_error', $message, array( 'response' => $body ) );
 			do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $result_error );
-			do_action( 'enginemail_smtp_after_send', $normalized, $payload, $result_error );
 			return $result_error;
 		}
 
 		do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $body );
-		do_action( 'enginemail_smtp_after_send', $normalized, $payload, $body );
 		return $body;
 	}
 
@@ -149,7 +137,7 @@ class EnjinMel_SMTP_API_Client {
 	 */
 	private static function maybe_decrypt_api_key( array $settings ) {
 		if ( empty( $settings['api_key'] ) ) {
-			return enjinmel_smtp_wp_error( 'enjinmel_missing_api_key', __( 'EnjinMel API key is not configured.', 'enjinmel-smtp' ), null, 'enginemail_missing_api_key' );
+			return new WP_Error( 'enjinmel_missing_api_key', __( 'EnjinMel API key is not configured.', 'enjinmel-smtp' ) );
 		}
 
 		$decrypted = EnjinMel_SMTP_Encryption::decrypt( $settings['api_key'] );
@@ -158,7 +146,7 @@ class EnjinMel_SMTP_API_Client {
 		}
 
 		if ( empty( $decrypted ) ) {
-			return enjinmel_smtp_wp_error( 'enjinmel_invalid_api_key', __( 'EnjinMel API key could not be decrypted.', 'enjinmel-smtp' ), null, 'enginemail_invalid_api_key' );
+			return new WP_Error( 'enjinmel_invalid_api_key', __( 'EnjinMel API key could not be decrypted.', 'enjinmel-smtp' ) );
 		}
 
 		return (string) $decrypted;
@@ -183,7 +171,7 @@ class EnjinMel_SMTP_API_Client {
 
 		$recipients = self::parse_addresses( $args['to'] );
 		if ( empty( $recipients ) ) {
-			return enjinmel_smtp_wp_error( 'enjinmel_missing_recipient', __( 'Email recipient is required.', 'enjinmel-smtp' ), null, 'enginemail_missing_recipient' );
+			return new WP_Error( 'enjinmel_missing_recipient', __( 'Email recipient is required.', 'enjinmel-smtp' ) );
 		}
 
 		$headers = self::parse_headers( $args['headers'] );
@@ -227,7 +215,7 @@ class EnjinMel_SMTP_API_Client {
 		}
 
 		if ( empty( $from['email'] ) || ! is_email( $from['email'] ) ) {
-			return enjinmel_smtp_wp_error( 'enjinmel_missing_sender', __( 'A valid sender email must be configured.', 'enjinmel-smtp' ), null, 'enginemail_missing_sender' );
+			return new WP_Error( 'enjinmel_missing_sender', __( 'A valid sender email must be configured.', 'enjinmel-smtp' ) );
 		}
 
 		$to_emails = implode( ',', $normalized['to'] );
@@ -293,7 +281,7 @@ class EnjinMel_SMTP_API_Client {
 				$raw      = (string) $attachment['data'];
 				$raw_size = strlen( $raw );
 				if ( $raw_size > self::MAX_ATTACHMENT_BYTES ) {
-					return enjinmel_smtp_wp_error(
+					return new WP_Error(
 						'enjinmel_attachment_too_large',
 						sprintf(
 							/* translators: %s: file name */
@@ -303,8 +291,7 @@ class EnjinMel_SMTP_API_Client {
 						array(
 							'file' => $attachment['name'],
 							'size' => $raw_size,
-						),
-						'enginemail_attachment_too_large'
+						)
 					);
 				}
 
@@ -317,12 +304,12 @@ class EnjinMel_SMTP_API_Client {
 
 			$path = realpath( $attachment );
 			if ( false === $path || ! file_exists( $path ) ) {
-				return enjinmel_smtp_wp_error( 'enjinmel_missing_attachment', __( 'Attachment file not found.', 'enjinmel-smtp' ), array( 'file' => $attachment ), 'enginemail_missing_attachment' );
+				return new WP_Error( 'enjinmel_missing_attachment', __( 'Attachment file not found.', 'enjinmel-smtp' ), array( 'file' => $attachment ) );
 			}
 
 			$size = filesize( $path );
 			if ( false !== $size && $size > self::MAX_ATTACHMENT_BYTES ) {
-				return enjinmel_smtp_wp_error(
+				return new WP_Error(
 					'enjinmel_attachment_too_large',
 					sprintf(
 						/* translators: %s: file name */
@@ -332,14 +319,13 @@ class EnjinMel_SMTP_API_Client {
 					array(
 						'file' => $attachment,
 						'size' => $size,
-					),
-					'enginemail_attachment_too_large'
+					)
 				);
 			}
 
 				$contents = file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local attachment from disk.
 			if ( false === $contents ) {
-				return enjinmel_smtp_wp_error( 'enjinmel_unreadable_attachment', __( 'Unable to read attachment.', 'enjinmel-smtp' ), array( 'file' => $attachment ), 'enginemail_unreadable_attachment' );
+				return new WP_Error( 'enjinmel_unreadable_attachment', __( 'Unable to read attachment.', 'enjinmel-smtp' ), array( 'file' => $attachment ) );
 			}
 
 				$normalized[] = array(

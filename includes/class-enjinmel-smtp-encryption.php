@@ -33,7 +33,7 @@ class EnjinMel_SMTP_Encryption {
 
 		$cipher = openssl_encrypt( $data, self::ENCRYPTION_METHOD, $key, 0, $iv );
 		if ( false === $cipher ) {
-			return enjinmel_smtp_wp_error( 'enjinmel_encryption_failed', __( 'Unable to encrypt value.', 'enjinmel-smtp' ), null, 'enginemail_encryption_failed' );
+			return new WP_Error( 'enjinmel_encryption_failed', __( 'Unable to encrypt value.', 'enjinmel-smtp' ) );
 		}
 
 		return $cipher;
@@ -59,7 +59,7 @@ class EnjinMel_SMTP_Encryption {
 
 		$plain = openssl_decrypt( $data, self::ENCRYPTION_METHOD, $key, 0, $iv );
 		if ( false === $plain ) {
-			return enjinmel_smtp_wp_error( 'enjinmel_decryption_failed', __( 'Unable to decrypt value.', 'enjinmel-smtp' ), null, 'enginemail_decryption_failed' );
+			return new WP_Error( 'enjinmel_decryption_failed', __( 'Unable to decrypt value.', 'enjinmel-smtp' ) );
 		}
 
 		return $plain;
@@ -71,8 +71,8 @@ class EnjinMel_SMTP_Encryption {
 	 * @return array|WP_Error Array of key/iv binary strings or WP_Error when missing.
 	 */
 	private static function get_credentials() {
-		$key_source = enjinmel_smtp_get_secret_constant( 'ENJINMEL_SMTP_KEY', 'ENGINEMAIL_SMTP_KEY' );
-		$iv_source  = enjinmel_smtp_get_secret_constant( 'ENJINMEL_SMTP_IV', 'ENGINEMAIL_SMTP_IV' );
+		$key_source = defined( 'ENJINMEL_SMTP_KEY' ) && '' !== constant( 'ENJINMEL_SMTP_KEY' ) ? constant( 'ENJINMEL_SMTP_KEY' ) : null;
+		$iv_source  = defined( 'ENJINMEL_SMTP_IV' ) && '' !== constant( 'ENJINMEL_SMTP_IV' ) ? constant( 'ENJINMEL_SMTP_IV' ) : null;
 
 		if ( null === $key_source || null === $iv_source ) {
 			$stored = self::get_or_create_stored_keys();
@@ -83,14 +83,14 @@ class EnjinMel_SMTP_Encryption {
 		}
 
 		if ( '' === $key_source || '' === $iv_source ) {
-			return enjinmel_smtp_wp_error( 'enjinmel_invalid_secret', __( 'Encryption constants cannot be empty.', 'enjinmel-smtp' ), null, 'enginemail_invalid_secret' );
+			return new WP_Error( 'enjinmel_invalid_secret', __( 'Encryption constants cannot be empty.', 'enjinmel-smtp' ) );
 		}
 
 		$key = substr( hash( 'sha256', (string) $key_source, true ), 0, 32 );
 		$iv  = substr( hash( 'sha256', (string) $iv_source, true ), 0, 16 );
 
 		if ( 32 !== strlen( $key ) || 16 !== strlen( $iv ) ) {
-			return enjinmel_smtp_wp_error( 'enjinmel_secret_length', __( 'Encryption key or IV length is invalid.', 'enjinmel-smtp' ), null, 'enginemail_secret_length' );
+			return new WP_Error( 'enjinmel_secret_length', __( 'Encryption key or IV length is invalid.', 'enjinmel-smtp' ) );
 		}
 
 		return array( $key, $iv );
@@ -110,7 +110,7 @@ class EnjinMel_SMTP_Encryption {
 			$iv  = self::generate_random_key();
 
 			if ( false === update_option( 'enjinmel_smtp_encryption_key', $key ) || false === update_option( 'enjinmel_smtp_encryption_iv', $iv ) ) {
-				return enjinmel_smtp_wp_error( 'enjinmel_key_generation_failed', __( 'Failed to generate and store encryption keys.', 'enjinmel-smtp' ), null, 'enginemail_key_generation_failed' );
+				return new WP_Error( 'enjinmel_key_generation_failed', __( 'Failed to generate and store encryption keys.', 'enjinmel-smtp' ) );
 			}
 		}
 

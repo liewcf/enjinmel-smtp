@@ -4,24 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a WordPress plugin that replaces the default WordPress email sending functionality with the EnjinMel REST API (formerly EngineMail) for enhanced deliverability and reliability. The plugin intercepts `wp_mail()` calls and sends emails through the EnjinMel API instead of traditional SMTP. Legacy EngineMail hooks remain available for backwards compatibility.
+This is a WordPress plugin that replaces the default WordPress email sending functionality with the EnjinMel REST API for enhanced deliverability and reliability. The plugin intercepts `wp_mail()` calls and sends emails through the EnjinMel API instead of traditional SMTP.
 
 ## Architecture
 
 ### Core Components
 
 - **Main Plugin File** (`enjinmel-smtp.php`): Bootstraps the plugin, registers admin menus, and wires settings
-- **API Client** (`includes/class-enjinmel-smtp-api-client.php`): Handles communication with the EnjinMel REST API (fires legacy EngineMail hooks)
-- **Encryption** (`includes/class-enjinmel-smtp-encryption.php`): Securely encrypts API keys using OpenSSL with legacy constant fallback
-- **Logging** (`includes/class-enjinmel-smtp-logging.php`): Logs email sends to custom database table with retention management and dual cron hooks
+- **API Client** (`includes/class-enjinmel-smtp-api-client.php`): Handles communication with the EnjinMel REST API
+- **Encryption** (`includes/class-enjinmel-smtp-encryption.php`): Securely encrypts API keys using OpenSSL
+- **Logging** (`includes/class-enjinmel-smtp-logging.php`): Logs email sends to custom database table with retention management
 - **Settings Page** (`includes/class-enjinmel-smtp-settings-page.php`): Admin interface for configuration
 
 ### Key Integration Points
 
 - Uses `pre_wp_mail` filter to intercept email sends
-- Creates custom database table `{$wpdb->prefix}enjinmel_smtp_logs` for email logging (legacy table name still read for migration)
-- Implements daily cron job for log retention (default: 90 days) using `enjinmel_smtp_retention_daily` (legacy `enginemail_smtp_purge_logs` cleared automatically)
-- Requires `ENJINMEL_SMTP_KEY` and `ENJINMEL_SMTP_IV` constants in wp-config.php for encryption (legacy `ENGINEMAIL_SMTP_*` constants remain supported)
+- Creates custom database table `{$wpdb->prefix}enjinmel_smtp_logs` for email logging
+- Implements daily cron job for log retention (default: 90 days) using `enjinmel_smtp_retention_daily`
+- Requires `ENJINMEL_SMTP_KEY` and `ENJINMEL_SMTP_IV` constants in wp-config.php for encryption
 
 ## Development Commands
 
@@ -77,7 +77,7 @@ npx wp-env start
 
 ### Encryption Requirements
 - API keys are encrypted before storage in WordPress options
-- Requires `ENJINMEL_SMTP_KEY` and `ENJINMEL_SMTP_IV` constants in wp-config.php (legacy `ENGINEMAIL_SMTP_*` values are honoured if new constants are absent)
+- Requires `ENJINMEL_SMTP_KEY` and `ENJINMEL_SMTP_IV` constants in wp-config.php
 - Uses AES-256-CBC encryption with keys derived from SHA-256 hashes
 
 ### Security Practices
@@ -90,7 +90,7 @@ npx wp-env start
 
 - Follow WordPress Coding Standards
 - Use 4-space indentation, UTF-8 encoding, LF line endings
-- Function naming: `enjinmel_smtp_{verb_noun}` (legacy `enginemail_smtp_{verb_noun}` helpers still exist)
+- Function naming: `enjinmel_smtp_{verb_noun}`
 - Class naming: `EngineMail_SMTP_{Name}`
 - PHP files use `class-*.php` naming pattern
 - Target PHP 7.4+ compatibility
@@ -113,7 +113,7 @@ CREATE TABLE {$wpdb->prefix}enjinmel_smtp_logs (
 
 ## API Integration
 
-- Endpoint: `https://api.enjinmel.com/RESTAPI/V2/Submission/SendEmail` (placeholder – update when the EnjinMel service URL is finalized; legacy builds still hit `api.enginemailer.com`)
+- Endpoint: `https://api.enginemailer.com/RESTAPI/V2/Submission/SendEmail`
 - Uses JSON payload with API key in headers
 - Supports attachments up to 5MB
 - Handles HTML and plain text content types

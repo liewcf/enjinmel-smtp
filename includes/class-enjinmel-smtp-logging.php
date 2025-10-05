@@ -10,8 +10,7 @@
  */
 class EnjinMel_SMTP_Logging {
 
-	private const CRON_HOOK        = 'enjinmel_smtp_retention_daily';
-	private const LEGACY_CRON_HOOK = 'enginemail_smtp_purge_logs';
+	private const CRON_HOOK = 'enjinmel_smtp_retention_daily';
 
 	/**
 	 * Initialize hooks.
@@ -20,7 +19,6 @@ class EnjinMel_SMTP_Logging {
 		add_action( 'wp_mail_succeeded', array( __CLASS__, 'on_mail_succeeded' ), 10, 1 );
 		add_action( 'wp_mail_failed', array( __CLASS__, 'on_mail_failed' ), 10, 1 );
 		add_action( self::CRON_HOOK, array( __CLASS__, 'purge_logs' ) );
-		add_action( self::LEGACY_CRON_HOOK, array( __CLASS__, 'purge_logs' ) );
 
 		self::schedule_events();
 	}
@@ -102,7 +100,6 @@ class EnjinMel_SMTP_Logging {
 		 * @param string $error_message Error message string (empty when not applicable).
 		 */
 		$entry = apply_filters( 'enjinmel_smtp_log_entry', $entry, $status, $to_emails, $subject, $error_message );
-		$entry = apply_filters( 'enginemail_smtp_log_entry', $entry, $status, $to_emails, $subject, $error_message );
 
 		if ( ! is_array( $entry ) ) {
 			return;
@@ -246,7 +243,6 @@ class EnjinMel_SMTP_Logging {
 	public static function unschedule_events() {
 		if ( function_exists( 'wp_clear_scheduled_hook' ) ) {
 			wp_clear_scheduled_hook( self::CRON_HOOK );
-			wp_clear_scheduled_hook( self::LEGACY_CRON_HOOK );
 		}
 	}
 
@@ -256,11 +252,8 @@ class EnjinMel_SMTP_Logging {
 	 * @return void
 	 */
 	public static function purge_logs() {
-		$tables = array_unique(
-			array(
-				enjinmel_smtp_log_table_name(),
-				enjinmel_smtp_legacy_log_table_name(),
-			)
+		$tables = array(
+			enjinmel_smtp_log_table_name(),
 		);
 
 		$tables = array_filter(
@@ -268,10 +261,8 @@ class EnjinMel_SMTP_Logging {
 		);
 
 		$days = (int) apply_filters( 'enjinmel_smtp_retention_days', 90 );
-		$days = (int) apply_filters( 'enginemail_smtp_retention_days', $days );
 
 		$max_rows = (int) apply_filters( 'enjinmel_smtp_retention_max_rows', 10000 );
-		$max_rows = (int) apply_filters( 'enginemail_smtp_retention_max_rows', $max_rows );
 
 		foreach ( $tables as $table ) {
 			self::purge_table( $table, $days, $max_rows );
