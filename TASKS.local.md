@@ -25,7 +25,7 @@
 - [x] Update admin menu slug, page hooks, and settings links to the new slug. *(Menu uses new slug with admin redirect for legacy page.)*
 - [x] Update i18n loader to the new text domain and scan strings. *(Text domains loaded for both new and legacy identifiers.)*
 - [x] Update composer.json (package name/description/autoload if class namespace changes). *(Composer metadata now references EnjinMel rename.)*
-- [x] Update README, AGENTS.md, memory notes, specs, and screenshots to reflect EnjinMel. *(README + docs updated; specs renamed with rename notes. Screenshots pending if/when UI captured.)*
+- [x] Update README, AGENTS.md, memory notes, specs, and screenshots to reflect EnjinMel. *(README + docs updated; specs renamed with rename notes. Screenshots completed with PNG files.)*
 
 # Local Follow-Up Tasks
 

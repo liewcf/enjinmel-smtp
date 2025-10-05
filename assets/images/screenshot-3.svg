@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
-  <rect width="1200" height="900" fill="#edf2f7"/>
-  <rect x="80" y="80" width="1040" height="740" rx="12" fill="#ffffff" stroke="#cbd5e0"/>
-  <text x="100" y="140" font-size="36" font-family="Arial, Helvetica, sans-serif" fill="#2d3748" font-weight="700">Send Test Email</text>
-  <text x="100" y="200" font-size="20" font-family="Arial, Helvetica, sans-serif" fill="#4a5568">Placeholder screenshot of the test email UI.</text>
-</svg>

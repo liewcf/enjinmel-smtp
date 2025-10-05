@@ -67,3 +67,16 @@ build/
 
 # Packaging
 *.zip
+
+# Repo-local files to ignore
+memory/
+AGENTS.md
+CLAUDE.md
+
+# Development and internal directories
+.claude/
+.gemini/
+scripts/
+specs/
+templates/
+tests/

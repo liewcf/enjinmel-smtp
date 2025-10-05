@@ -79,7 +79,6 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 
 1. Settings page with API configuration
 2. Log viewer with filtering and export options
-3. Test email functionality
 
 == Changelog ==
 
