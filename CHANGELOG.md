@@ -43,6 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WordPress 5.0 or higher
 - PHP 7.4 or higher
 - EnjinMel API key
-- Encryption constants in wp-config.php
+- Encryption constants in wp-config.php (optional - auto-generated if not provided)
 
 [0.1.0]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.1.0

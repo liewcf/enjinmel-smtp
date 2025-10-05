@@ -38,15 +38,16 @@ EnjinMel SMTP replaces the default WordPress email sending functionality with th
 
 1. Upload the plugin files to `/wp-content/plugins/enjinmel-smtp/`, or install through the WordPress plugins screen
 2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Add encryption constants to your `wp-config.php` file:
-   ```php
-   define('ENJINMEL_SMTP_KEY', 'your-32-character-key-here');
-   define('ENJINMEL_SMTP_IV', 'your-16-character-iv-here');
-   ```
-4. Navigate to EnjinMel SMTP settings page
-5. Enter your EnjinMel API key (get one at https://portal.enginemailer.com/Account/APIs)
-6. Configure your default From Name and From Email
-7. Send a test email to verify everything works
+3. Navigate to EnjinMel SMTP settings page
+4. Enter your EnjinMel API key (get one at https://portal.enginemailer.com/Account/APIs)
+5. Configure your default From Name and From Email
+6. Send a test email to verify everything works
+
+**Optional:** For enhanced security, you can define custom encryption constants in your `wp-config.php` file. If not provided, the plugin will auto-generate and store encryption keys in the database:
+```php
+define('ENJINMEL_SMTP_KEY', 'your-32-character-key-here');
+define('ENJINMEL_SMTP_IV', 'your-16-character-iv-here');
+```
 
 == Frequently Asked Questions ==
 
@@ -56,7 +57,7 @@ You can obtain an API key from the EnjinMel portal at https://portal.enginemaile
 
 = What are the encryption constants and why do I need them? =
 
-The plugin uses AES-256-CBC encryption to securely store your API key in the database. The `ENJINMEL_SMTP_KEY` and `ENJINMEL_SMTP_IV` constants must be defined in your `wp-config.php` file. These should be unique random strings.
+The plugin uses AES-256-CBC encryption to securely store your API key in the database. By default, the plugin auto-generates and stores encryption keys in the database. For enhanced security in shared hosting or high-security environments, you can optionally define custom `ENJINMEL_SMTP_KEY` and `ENJINMEL_SMTP_IV` constants in your `wp-config.php` file.
 
 = Can I view sent email logs? =
 
