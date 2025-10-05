@@ -20,24 +20,8 @@ class EnjinMel_SMTP_Settings_Page {
 		$section = 'enjinmel_smtp_section';
 		add_settings_field(
 			'enjinmel_smtp_api_key',
-			__( 'API Key', 'enjinmel-smtp' ),
+			__( 'Enginemailer API Key', 'enjinmel-smtp' ),
 			array( __CLASS__, 'api_key_render' ),
-			$group,
-			$section
-		);
-
-		add_settings_field(
-			'enjinmel_smtp_campaign_name',
-			__( 'Default Campaign Name', 'enjinmel-smtp' ),
-			array( __CLASS__, 'campaign_name_render' ),
-			$group,
-			$section
-		);
-
-		add_settings_field(
-			'enjinmel_smtp_template_id',
-			__( 'Template ID (optional)', 'enjinmel-smtp' ),
-			array( __CLASS__, 'template_id_render' ),
 			$group,
 			$section
 		);
@@ -54,6 +38,22 @@ class EnjinMel_SMTP_Settings_Page {
 			'enjinmel_smtp_from_email',
 			__( 'Sender Email', 'enjinmel-smtp' ),
 			array( __CLASS__, 'from_email_render' ),
+			$group,
+			$section
+		);
+
+		add_settings_field(
+			'enjinmel_smtp_template_id',
+			__( 'Template ID (optional)', 'enjinmel-smtp' ),
+			array( __CLASS__, 'template_id_render' ),
+			$group,
+			$section
+		);
+
+		add_settings_field(
+			'enjinmel_smtp_campaign_name',
+			__( 'Campaign Name (optional)', 'enjinmel-smtp' ),
+			array( __CLASS__, 'campaign_name_render' ),
 			$group,
 			$section
 		);
@@ -80,9 +80,35 @@ class EnjinMel_SMTP_Settings_Page {
 	 */
 	public static function api_key_render() {
 		$options = enjinmel_smtp_get_settings();
+		$display_value = '';
+		$placeholder = __( 'Enter API key', 'enjinmel-smtp' );
+
+		if ( ! empty( $options['api_key'] ) ) {
+			$decrypted = EnjinMel_SMTP_Encryption::decrypt( $options['api_key'] );
+			if ( ! is_wp_error( $decrypted ) && '' !== $decrypted ) {
+				$display_value = self::mask_api_key( $decrypted );
+				$placeholder = '';
+			}
+		}
 		?>
-		<input type='password' autocomplete='off' name='enjinmel_smtp_settings[api_key]' value='' placeholder='<?php echo esc_attr__( 'Enter API key (leave blank to keep unchanged)', 'enjinmel-smtp' ); ?>'>
+		<input type='text' autocomplete='off' name='enjinmel_smtp_settings[api_key]' value='<?php echo esc_attr( $display_value ); ?>' placeholder='<?php echo esc_attr( $placeholder ); ?>'>
 		<?php
+	}
+
+	/**
+	 * Mask an API key for display.
+	 *
+	 * @param string $api_key The API key to mask.
+	 * @return string
+	 */
+	private static function mask_api_key( $api_key ) {
+		$key_length = strlen( $api_key );
+		if ( $key_length <= 4 ) {
+			return str_repeat( '*', $key_length );
+		}
+		$visible_chars = 4;
+		$masked_length = $key_length - $visible_chars;
+		return substr( $api_key, 0, $visible_chars ) . str_repeat( '*', min( $masked_length, 20 ) );
 	}
 
 	/**
