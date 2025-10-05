@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EnjinMel SMTP
  * Plugin URI:  https://github.com/liewcf/enjinmel-smtp
- * Description: Replaces the default WordPress email sending functionality with EnjinMel SMTP for enhanced deliverability and reliability.
+ * Description: Replaces the default WordPress email sending functionality with Enginemailer API key for enhanced deliverability and reliability.
  * Version:     1.0.0
  * Author:      Liew CheonFong
  * Author URI:  https://github.com/liewcf
@@ -285,7 +285,7 @@ function enjinmel_smtp_redirect_legacy_settings()
 
     $page = sanitize_key(wp_unslash($_GET['page'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Value is read-only and sanitized immediately.
     if (enjinmel_smtp_legacy_settings_group() === $page ) {
-        wp_safe_redirect(admin_url('options-general.php?page=' . enjinmel_smtp_settings_group()));
+        wp_safe_redirect(admin_url('admin.php?page=' . enjinmel_smtp_settings_group()));
         exit;
     }
 }
@@ -368,9 +368,21 @@ add_action(
  */
 function enjinmel_smtp_add_admin_menu()
 {
-    add_options_page(
+    add_menu_page(
         'EnjinMel SMTP',
         'EnjinMel SMTP',
+        'manage_options',
+        enjinmel_smtp_settings_group(),
+        'enjinmel_smtp_options_page',
+        'dashicons-email',
+        30
+    );
+
+    // Add settings submenu with same slug as parent to avoid duplicate menu item.
+    add_submenu_page(
+        enjinmel_smtp_settings_group(),
+        'Settings',
+        'Settings',
         'manage_options',
         enjinmel_smtp_settings_group(),
         'enjinmel_smtp_options_page'
@@ -484,16 +496,10 @@ function enjinmel_smtp_settings_sanitize( $input )
 
     $output['campaign_name'] = isset($input['campaign_name']) ? sanitize_text_field($input['campaign_name']) : '';
     $output['template_id']   = isset($input['template_id']) ? sanitize_text_field($input['template_id']) : '';
-    $output['from_name']     = isset($input['from_name']) ? sanitize_text_field($input['from_name']) : '';
-    $output['from_email']    = isset($input['from_email']) ? sanitize_email($input['from_email']) : '';
-    $output['force_from']    = ! empty($input['force_from']) ? 1 : 0;
-    if (array_key_exists('enable_logging', $input) ) {
-        $output['enable_logging'] = ! empty($input['enable_logging']) ? 1 : 0;
-    } elseif (isset($existing['enable_logging']) ) {
-        $output['enable_logging'] = (int) $existing['enable_logging'];
-    } else {
-        $output['enable_logging'] = 1; // default enabled on first save.
-    }
+    $output['from_name']      = isset($input['from_name']) ? sanitize_text_field($input['from_name']) : '';
+    $output['from_email']     = isset($input['from_email']) ? sanitize_email($input['from_email']) : '';
+    $output['force_from']     = ! empty($input['force_from']) ? 1 : 0;
+    $output['enable_logging'] = ! empty($input['enable_logging']) ? 1 : 0;
 
     if (isset($input['api_key']) && '' !== $input['api_key'] ) {
         $submitted_key = trim($input['api_key']);
@@ -682,7 +688,7 @@ function enjinmel_smtp_admin_notices()
 
     $settings = enjinmel_smtp_get_settings(array());
     if (empty($settings['api_key']) ) {
-        echo '<div class="notice notice-warning"><p>' . esc_html__('EnjinMel SMTP: add your API key in the settings page to enable transactional email sends.', 'enjinmel-smtp') . ' <a href="' . esc_url(admin_url('options-general.php?page=' . enjinmel_smtp_settings_group())) . '">' . esc_html__('Configure Now', 'enjinmel-smtp') . '</a></p></div>';
+        echo '<div class="notice notice-warning"><p>' . esc_html__('EnjinMel SMTP: add your API key in the settings page to enable transactional email sends.', 'enjinmel-smtp') . ' <a href="' . esc_url(admin_url('admin.php?page=' . enjinmel_smtp_settings_group())) . '">' . esc_html__('Configure Now', 'enjinmel-smtp') . '</a></p></div>';
         return;
     }
 

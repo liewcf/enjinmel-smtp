@@ -31,7 +31,7 @@ class EnjinMel_SMTP_Log_Viewer
     public static function register_page()
     {
         add_submenu_page(
-            'options-general.php',
+            enjinmel_smtp_settings_group(),
             __('Email Logs', 'enjinmel-smtp'),
             __('Email Logs', 'enjinmel-smtp'),
             'manage_options',
@@ -47,7 +47,7 @@ class EnjinMel_SMTP_Log_Viewer
      */
     public static function enqueue_assets( $hook )
     {
-        if ('settings_page_enjinmel-smtp-logs' !== $hook ) {
+        if ('enjinmel-smtp_page_enjinmel-smtp-logs' !== $hook ) {
             return;
         }
 
@@ -177,7 +177,7 @@ class EnjinMel_SMTP_Log_Viewer
                     </select>
                     
                     <button type="submit" class="button button-primary"><?php echo esc_html__('Filter', 'enjinmel-smtp'); ?></button>
-                    <a href="<?php echo esc_url(admin_url('options-general.php?page=enjinmel-smtp-logs')); ?>" class="button"><?php echo esc_html__('Reset', 'enjinmel-smtp'); ?></a>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=enjinmel-smtp-logs')); ?>" class="button"><?php echo esc_html__('Reset', 'enjinmel-smtp'); ?></a>
                 </div>
             </form>
         </div>
