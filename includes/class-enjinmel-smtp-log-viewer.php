@@ -22,6 +22,7 @@ class EnjinMel_SMTP_Log_Viewer
         add_action('admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ));
         add_action('wp_ajax_enjinmel_smtp_delete_logs', array( __CLASS__, 'ajax_delete_logs' ));
         add_action('wp_ajax_enjinmel_smtp_export_logs', array( __CLASS__, 'ajax_export_logs' ));
+        add_action('wp_ajax_enjinmel_smtp_clear_all_logs', array( __CLASS__, 'ajax_clear_all_logs' ));
     }
 
     /**
@@ -74,8 +75,11 @@ class EnjinMel_SMTP_Log_Viewer
             'strings' => array(
             'confirmDelete'       => __('Are you sure you want to delete the selected logs?', 'enjinmel-smtp'),
             'confirmDeleteAll'    => __('Are you sure you want to delete ALL logs matching the current filter?', 'enjinmel-smtp'),
+            'confirmClearAll'     => __('Are you sure you want to delete ALL email logs? This action cannot be undone!', 'enjinmel-smtp'),
             'deleteSuccess'       => __('Logs deleted successfully.', 'enjinmel-smtp'),
             'deleteFailed'        => __('Failed to delete logs.', 'enjinmel-smtp'),
+            'clearAllSuccess'     => __('All logs cleared successfully.', 'enjinmel-smtp'),
+            'clearAllFailed'      => __('Failed to clear all logs.', 'enjinmel-smtp'),
             'exportSuccess'       => __('Logs exported successfully.', 'enjinmel-smtp'),
             'exportFailed'        => __('Failed to export logs.', 'enjinmel-smtp'),
             'noLogsSelected'      => __('Please select at least one log to delete.', 'enjinmel-smtp'),
@@ -110,6 +114,7 @@ class EnjinMel_SMTP_Log_Viewer
                 </div>
                 <div class="alignleft actions">
                     <button type="button" id="export-csv" class="button"><?php echo esc_html__('Export to CSV', 'enjinmel-smtp'); ?></button>
+                    <button type="button" id="clear-all-logs" class="button button-secondary" style="margin-left: 5px;"><?php echo esc_html__('Clear All Logs', 'enjinmel-smtp'); ?></button>
                 </div>
         <?php self::render_pagination($logs_data['total'], $logs_data['per_page'], $logs_data['current_page']); ?>
             </div>
@@ -491,6 +496,29 @@ class EnjinMel_SMTP_Log_Viewer
 
         fclose($output);
         exit;
+    }
+
+    /**
+     * AJAX handler for clearing all logs.
+     */
+    public static function ajax_clear_all_logs()
+    {
+        check_ajax_referer('enjinmel_smtp_log_viewer', 'nonce');
+
+        if (! current_user_can('manage_options') ) {
+            wp_send_json_error(array( 'message' => __('Unauthorized.', 'enjinmel-smtp') ), 403);
+        }
+
+        global $wpdb;
+        $table = enjinmel_smtp_active_log_table();
+
+        $deleted = $wpdb->query("TRUNCATE TABLE {$table}"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        if (false === $deleted ) {
+            wp_send_json_error(array( 'message' => __('Failed to clear all logs.', 'enjinmel-smtp') ), 500);
+        }
+
+        wp_send_json_success(array( 'message' => __('All logs cleared successfully.', 'enjinmel-smtp') ));
     }
 
     /**

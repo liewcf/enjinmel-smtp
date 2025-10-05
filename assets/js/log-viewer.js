@@ -11,6 +11,7 @@ jQuery(document).ready(function($) {
 			$('#cb-select-all-1, #cb-select-all-2').on('change', this.toggleAllCheckboxes);
 			$('#doaction').on('click', this.handleBulkAction);
 			$('#export-csv').on('click', this.handleExport);
+			$('#clear-all-logs').on('click', this.handleClearAll);
 			$('.enjinmel-logs-table tbody').on('change', 'input[type="checkbox"]', this.syncSelectAll);
 		},
 
@@ -89,6 +90,34 @@ jQuery(document).ready(function($) {
 			var exportUrl = currentUrl + separator + 'action=enjinmel_smtp_export_logs&nonce=' + enjinmelSmtpLogViewer.nonce;
 			
 			window.location.href = exportUrl;
+		},
+
+		handleClearAll: function(e) {
+			e.preventDefault();
+			
+			if (!confirm(enjinmelSmtpLogViewer.strings.confirmClearAll)) {
+				return;
+			}
+
+			$.ajax({
+				url: enjinmelSmtpLogViewer.ajaxurl,
+				type: 'POST',
+				data: {
+					action: 'enjinmel_smtp_clear_all_logs',
+					nonce: enjinmelSmtpLogViewer.nonce
+				},
+				success: function(response) {
+					if (response.success) {
+						alert(enjinmelSmtpLogViewer.strings.clearAllSuccess);
+						location.reload();
+					} else {
+						alert(response.data.message || enjinmelSmtpLogViewer.strings.clearAllFailed);
+					}
+				},
+				error: function() {
+					alert(enjinmelSmtpLogViewer.strings.clearAllFailed);
+				}
+			});
 		}
 	};
 
