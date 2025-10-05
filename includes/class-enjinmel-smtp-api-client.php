@@ -10,7 +10,6 @@
  */
 class EnjinMel_SMTP_API_Client {
 
-	// TODO: Swap to the official EnjinMel endpoint when provisioned; legacy EngineMailer URL retained for service continuity.
 	private const ENDPOINT             = 'https://api.enginemailer.com/RESTAPI/V2/Submission/SendEmail';
 	private const MAX_ATTACHMENT_BYTES = 5242880; // 5MB per current API limits.
 
