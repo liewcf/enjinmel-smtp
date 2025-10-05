@@ -280,23 +280,6 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 - Security: encrypted storage, sanitization, escaping
 - Legacy EngineMail compatibility
 
-## Roadmap
-
-### Version 0.2.0 (Planned)
-
-- [ ] Retry logic for failed emails
-- [ ] Rate limiting protection
-- [ ] Delivery status webhooks
-- [ ] WordPress multisite support
-- [ ] Enhanced monitoring and health checks
-
-### Version 0.3.0 (Planned)
-
-- [ ] Bulk email operations
-- [ ] Advanced analytics dashboard
-- [ ] Email templates management
-- [ ] SMTP fallback support
-
 ## Support
 
 - **Documentation:** [GitHub Wiki](https://github.com/liewcf/enjinmel-smtp/wiki)

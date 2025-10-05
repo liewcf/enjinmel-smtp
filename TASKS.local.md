@@ -103,17 +103,23 @@
   - [x] Create assets (CSS and JavaScript) for interactive UI
   - [x] Implement AJAX handlers for delete and export operations
 
-- [ ] **Error Reporting Dashboard (Future Enhancement)**
-  - [ ] Aggregate failed sends by error type
-  - [ ] Show recent error trends (last 7/30 days)
-  - [ ] Add admin notice for spike in failures
-  - [ ] Track API response times for performance monitoring
+## Roadmap
 
-- [ ] **Performance Monitoring (Future Enhancement)**
-  - [ ] Add optional performance logging (API response time)
-  - [ ] Track payload sizes
-  - [ ] Monitor rate limits (if applicable)
-  - [ ] Add admin dashboard widget with key metrics
+### Version 0.2.0 (Planned)
+
+- [ ] Retry logic for failed emails
+- [ ] Rate limiting protection
+- [ ] Delivery status webhooks
+- [ ] WordPress multisite support
+- [ ] Enhanced monitoring and health checks
+
+### Version 0.3.0 (Planned)
+
+- [ ] Bulk email operations
+- [ ] Advanced analytics dashboard
+- [ ] Email templates management
+- [ ] SMTP fallback support
+
 
 ## Notes
 
