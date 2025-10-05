@@ -79,15 +79,15 @@ class EnjinMel_SMTP_Settings_Page {
 	 * Render the API key field.
 	 */
 	public static function api_key_render() {
-		$options = enjinmel_smtp_get_settings();
+		$options       = enjinmel_smtp_get_settings();
 		$display_value = '';
-		$placeholder = __( 'Enter API key', 'enjinmel-smtp' );
+		$placeholder   = __( 'Enter API key', 'enjinmel-smtp' );
 
 		if ( ! empty( $options['api_key'] ) ) {
 			$decrypted = EnjinMel_SMTP_Encryption::decrypt( $options['api_key'] );
 			if ( ! is_wp_error( $decrypted ) && '' !== $decrypted ) {
 				$display_value = self::mask_api_key( $decrypted );
-				$placeholder = '';
+				$placeholder   = '';
 			}
 		}
 		?>

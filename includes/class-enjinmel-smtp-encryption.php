@@ -8,126 +8,121 @@
 /**
  * Lightweight wrapper around OpenSSL for option encryption.
  */
-class EnjinMel_SMTP_Encryption
-{
+class EnjinMel_SMTP_Encryption {
 
-    private const ENCRYPTION_METHOD = 'AES-256-CBC';
 
-    /**
-     * Encrypt data using the configured key material.
-     *
-     * @param  string $data Plain text to encrypt.
-     * @return string|WP_Error Base64 encoded cipher text or WP_Error on failure.
-     */
-    public static function encrypt( $data )
-    {
-        if ('' === $data ) {
-            return '';
-        }
+	private const ENCRYPTION_METHOD = 'AES-256-CBC';
 
-        $creds = self::get_credentials();
-        if (is_wp_error($creds) ) {
-            return $creds;
-        }
+	/**
+	 * Encrypt data using the configured key material.
+	 *
+	 * @param  string $data Plain text to encrypt.
+	 * @return string|WP_Error Base64 encoded cipher text or WP_Error on failure.
+	 */
+	public static function encrypt( $data ) {
+		if ( '' === $data ) {
+			return '';
+		}
 
-        list( $key, $iv ) = $creds;
+		$creds = self::get_credentials();
+		if ( is_wp_error( $creds ) ) {
+			return $creds;
+		}
 
-        $cipher = openssl_encrypt($data, self::ENCRYPTION_METHOD, $key, 0, $iv);
-        if (false === $cipher ) {
-            return enjinmel_smtp_wp_error('enjinmel_encryption_failed', __('Unable to encrypt value.', 'enjinmel-smtp'), null, 'enginemail_encryption_failed');
-        }
+		list( $key, $iv ) = $creds;
 
-        return $cipher;
-    }
+		$cipher = openssl_encrypt( $data, self::ENCRYPTION_METHOD, $key, 0, $iv );
+		if ( false === $cipher ) {
+			return enjinmel_smtp_wp_error( 'enjinmel_encryption_failed', __( 'Unable to encrypt value.', 'enjinmel-smtp' ), null, 'enginemail_encryption_failed' );
+		}
 
-    /**
-     * Decrypt data using the configured key material.
-     *
-     * @param  string $data Cipher text.
-     * @return string|WP_Error Plain text or WP_Error when key material is missing/invalid.
-     */
-    public static function decrypt( $data )
-    {
-        if ('' === $data ) {
-            return '';
-        }
+		return $cipher;
+	}
 
-        $creds = self::get_credentials();
-        if (is_wp_error($creds) ) {
-            return $creds;
-        }
+	/**
+	 * Decrypt data using the configured key material.
+	 *
+	 * @param  string $data Cipher text.
+	 * @return string|WP_Error Plain text or WP_Error when key material is missing/invalid.
+	 */
+	public static function decrypt( $data ) {
+		if ( '' === $data ) {
+			return '';
+		}
 
-        list( $key, $iv ) = $creds;
+		$creds = self::get_credentials();
+		if ( is_wp_error( $creds ) ) {
+			return $creds;
+		}
 
-        $plain = openssl_decrypt($data, self::ENCRYPTION_METHOD, $key, 0, $iv);
-        if (false === $plain ) {
-            return enjinmel_smtp_wp_error('enjinmel_decryption_failed', __('Unable to decrypt value.', 'enjinmel-smtp'), null, 'enginemail_decryption_failed');
-        }
+		list( $key, $iv ) = $creds;
 
-        return $plain;
-    }
+		$plain = openssl_decrypt( $data, self::ENCRYPTION_METHOD, $key, 0, $iv );
+		if ( false === $plain ) {
+			return enjinmel_smtp_wp_error( 'enjinmel_decryption_failed', __( 'Unable to decrypt value.', 'enjinmel-smtp' ), null, 'enginemail_decryption_failed' );
+		}
 
-    /**
-     * Resolve the encryption key and IV from constants or auto-generated stored keys.
-     *
-     * @return array|WP_Error Array of key/iv binary strings or WP_Error when missing.
-     */
-    private static function get_credentials()
-    {
-        $key_source = enjinmel_smtp_get_secret_constant('ENJINMEL_SMTP_KEY', 'ENGINEMAIL_SMTP_KEY');
-        $iv_source  = enjinmel_smtp_get_secret_constant('ENJINMEL_SMTP_IV', 'ENGINEMAIL_SMTP_IV');
+		return $plain;
+	}
 
-        if (null === $key_source || null === $iv_source ) {
-            $stored = self::get_or_create_stored_keys();
-            if (is_wp_error($stored) ) {
-                return $stored;
-            }
-            list( $key_source, $iv_source ) = $stored;
-        }
+	/**
+	 * Resolve the encryption key and IV from constants or auto-generated stored keys.
+	 *
+	 * @return array|WP_Error Array of key/iv binary strings or WP_Error when missing.
+	 */
+	private static function get_credentials() {
+		$key_source = enjinmel_smtp_get_secret_constant( 'ENJINMEL_SMTP_KEY', 'ENGINEMAIL_SMTP_KEY' );
+		$iv_source  = enjinmel_smtp_get_secret_constant( 'ENJINMEL_SMTP_IV', 'ENGINEMAIL_SMTP_IV' );
 
-        if ('' === $key_source || '' === $iv_source ) {
-            return enjinmel_smtp_wp_error('enjinmel_invalid_secret', __('Encryption constants cannot be empty.', 'enjinmel-smtp'), null, 'enginemail_invalid_secret');
-        }
+		if ( null === $key_source || null === $iv_source ) {
+			$stored = self::get_or_create_stored_keys();
+			if ( is_wp_error( $stored ) ) {
+				return $stored;
+			}
+			list( $key_source, $iv_source ) = $stored;
+		}
 
-        $key = substr(hash('sha256', (string) $key_source, true), 0, 32);
-        $iv  = substr(hash('sha256', (string) $iv_source, true), 0, 16);
+		if ( '' === $key_source || '' === $iv_source ) {
+			return enjinmel_smtp_wp_error( 'enjinmel_invalid_secret', __( 'Encryption constants cannot be empty.', 'enjinmel-smtp' ), null, 'enginemail_invalid_secret' );
+		}
 
-        if (32 !== strlen($key) || 16 !== strlen($iv) ) {
-            return enjinmel_smtp_wp_error('enjinmel_secret_length', __('Encryption key or IV length is invalid.', 'enjinmel-smtp'), null, 'enginemail_secret_length');
-        }
+		$key = substr( hash( 'sha256', (string) $key_source, true ), 0, 32 );
+		$iv  = substr( hash( 'sha256', (string) $iv_source, true ), 0, 16 );
 
-        return array( $key, $iv );
-    }
+		if ( 32 !== strlen( $key ) || 16 !== strlen( $iv ) ) {
+			return enjinmel_smtp_wp_error( 'enjinmel_secret_length', __( 'Encryption key or IV length is invalid.', 'enjinmel-smtp' ), null, 'enginemail_secret_length' );
+		}
 
-    /**
-     * Get or create auto-generated encryption keys stored in the database.
-     *
-     * @return array|WP_Error Array of key/iv source strings or WP_Error on failure.
-     */
-    private static function get_or_create_stored_keys()
-    {
-        $key = get_option('enjinmel_smtp_encryption_key', null);
-        $iv  = get_option('enjinmel_smtp_encryption_iv', null);
+		return array( $key, $iv );
+	}
 
-        if (null === $key || null === $iv ) {
-            $key = self::generate_random_key();
-            $iv  = self::generate_random_key();
+	/**
+	 * Get or create auto-generated encryption keys stored in the database.
+	 *
+	 * @return array|WP_Error Array of key/iv source strings or WP_Error on failure.
+	 */
+	private static function get_or_create_stored_keys() {
+		$key = get_option( 'enjinmel_smtp_encryption_key', null );
+		$iv  = get_option( 'enjinmel_smtp_encryption_iv', null );
 
-            if (false === update_option('enjinmel_smtp_encryption_key', $key) || false === update_option('enjinmel_smtp_encryption_iv', $iv) ) {
-                return enjinmel_smtp_wp_error('enjinmel_key_generation_failed', __('Failed to generate and store encryption keys.', 'enjinmel-smtp'), null, 'enginemail_key_generation_failed');
-            }
-        }
+		if ( null === $key || null === $iv ) {
+			$key = self::generate_random_key();
+			$iv  = self::generate_random_key();
 
-        return array( $key, $iv );
-    }
+			if ( false === update_option( 'enjinmel_smtp_encryption_key', $key ) || false === update_option( 'enjinmel_smtp_encryption_iv', $iv ) ) {
+				return enjinmel_smtp_wp_error( 'enjinmel_key_generation_failed', __( 'Failed to generate and store encryption keys.', 'enjinmel-smtp' ), null, 'enginemail_key_generation_failed' );
+			}
+		}
 
-    /**
-     * Generate a cryptographically secure random key.
-     *
-     * @return string Random key string.
-     */
-    private static function generate_random_key()
-    {
-        return bin2hex(random_bytes(32));
-    }
+		return array( $key, $iv );
+	}
+
+	/**
+	 * Generate a cryptographically secure random key.
+	 *
+	 * @return string Random key string.
+	 */
+	private static function generate_random_key() {
+		return bin2hex( random_bytes( 32 ) );
+	}
 }
