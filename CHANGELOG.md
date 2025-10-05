@@ -21,8 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom From Name and From Email
 - Force From option to override plugin defaults
 - Toggle for enabling/disabling logging
-- Legacy EngineMail compatibility hooks and naming
-- Automatic migration from EngineMail to EnjinMel naming convention
 - Daily cron job for log cleanup
 - WordPress Coding Standards compliance
 - Security features:

@@ -7,7 +7,7 @@
 
 Replace WordPress default email sending with the Enginemailer REST API for enhanced deliverability and reliability.
 
-> **Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer or the legacy EngineMail project.
+> **Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer.
 
 ## Understanding the Names
 

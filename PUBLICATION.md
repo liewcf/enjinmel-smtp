@@ -39,7 +39,6 @@
 - [x] Test email functionality
 - [x] Settings page with configuration
 - [x] Automatic log retention (90 days)
-- [x] Legacy EngineMail compatibility
 
 ### Distribution Package
 - [x] Clean distribution zip created: `dist/enjinmel-smtp-0.1.0.zip` (27KB)
@@ -152,5 +151,4 @@ Version 0.1.0 (2025-10-05):
 - Email logging and management
 - Admin interface with log viewer
 - Security: encrypted storage, input sanitization, output escaping
-- Legacy EngineMail compatibility
 - WordPress Coding Standards compliant

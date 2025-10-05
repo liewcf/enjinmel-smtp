@@ -14,15 +14,14 @@ Replace WordPress default email sending with Enginemailer API for enhanced deliv
 
 EnjinMel SMTP replaces the default WordPress email sending functionality with the powerful Enginemailer REST API to ensure your transactional emails are delivered reliably and efficiently.
 
-**Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer or the legacy EngineMail project.
+**Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer.
 
 **Understanding the Names:**
 
 * **EnjinMel SMTP** - The name of this WordPress plugin
 * **Enginemailer** - The third-party email delivery API service (https://enginemailer.com)
-* **EngineMail** - Legacy naming convention maintained for backward compatibility with existing integrations
 
-This plugin connects your WordPress site to the Enginemailer service API. It maintains legacy EngineMail hooks to ensure existing customizations continue working.
+This plugin connects your WordPress site to the Enginemailer service API.
 
 **Key Features:**
 
@@ -33,7 +32,6 @@ This plugin connects your WordPress site to the Enginemailer service API. It mai
 * **Secure API Key Storage** - API keys are encrypted using AES-256-CBC encryption
 * **Log Management** - Automatic log retention with configurable cleanup schedules
 * **Admin Interface** - User-friendly settings page with log viewer
-* **Backwards Compatible** - Maintains legacy EngineMail hooks for existing integrations
 
 **Perfect For:**
 
@@ -99,7 +97,6 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 * Email logging with retention management
 * Admin log viewer with filtering and export
 * Test email functionality
-* Legacy EngineMail compatibility hooks
 
 == Upgrade Notice ==
 
@@ -115,7 +112,6 @@ Initial release of EnjinMel SMTP plugin with full email delivery and logging fea
 * Capability checks on all admin operations
 
 **Developers:**
-* Legacy hooks maintained for backwards compatibility
 * Follows WordPress Coding Standards
 * Comprehensive inline documentation
 * Extensible architecture with filters and actions
