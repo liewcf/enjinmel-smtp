@@ -443,13 +443,13 @@ function enjinmel_smtp_options_page() {
 				to: to
 			}).done(function(resp){
 				if(resp && resp.success){
-					$('#enjinmel_smtp_test_result').text('<?php echo esc_js( __( 'Test email sent successfully.', 'enjinmel-smtp' ) ); ?>');
+					$('#enjinmel_smtp_test_result').html('<strong style="color: #46b450;"><?php echo esc_js( __( 'Test email sent successfully.', 'enjinmel-smtp' ) ); ?></strong>');
 				} else {
 					var msg = (resp && resp.data && resp.data.message) ? resp.data.message : '<?php echo esc_js( __( 'Failed to send test email.', 'enjinmel-smtp' ) ); ?>';
-					$('#enjinmel_smtp_test_result').text('Error: ' + msg);
+					$('#enjinmel_smtp_test_result').html('<span style="color: #dc3232;">Error: ' + msg + '</span>');
 				}
 			}).fail(function(){
-				$('#enjinmel_smtp_test_result').text('<?php echo esc_js( __( 'Request failed. Please try again.', 'enjinmel-smtp' ) ); ?>');
+				$('#enjinmel_smtp_test_result').html('<span style="color: #dc3232;"><?php echo esc_js( __( 'Request failed. Please try again.', 'enjinmel-smtp' ) ); ?></span>');
 			});
 		});
 	})(jQuery);
