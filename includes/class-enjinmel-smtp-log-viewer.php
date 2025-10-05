@@ -55,14 +55,14 @@ class EnjinMel_SMTP_Log_Viewer
             'enjinmel-smtp-log-viewer',
             plugins_url('assets/css/log-viewer.css', dirname(__FILE__)),
             array(),
-            '1.0.0'
+            '0.1.0'
         );
 
         wp_enqueue_script(
             'enjinmel-smtp-log-viewer',
             plugins_url('assets/js/log-viewer.js', dirname(__FILE__)),
             array( 'jquery' ),
-            '1.0.0',
+            '0.1.0',
             true
         );
 
