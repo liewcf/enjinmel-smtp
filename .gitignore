@@ -17,6 +17,8 @@ wp-config.local.php
 # IDE and editor files
 .vscode/
 .idea/
+.claude/
+.gemini/
 *.sublime-project
 *.sublime-workspace
 
