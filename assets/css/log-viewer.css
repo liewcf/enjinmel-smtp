@@ -1,0 +1,97 @@
+.enjinmel-log-filters {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	padding: 15px;
+	margin: 20px 0;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.enjinmel-log-filters .filter-row {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.enjinmel-log-filters input[type="search"],
+.enjinmel-log-filters input[type="date"] {
+	max-width: 200px;
+}
+
+.enjinmel-log-filters select {
+	max-width: 150px;
+}
+
+.enjinmel-log-filters label {
+	margin: 0;
+	font-weight: 600;
+}
+
+.enjinmel-logs-table {
+	margin-top: 10px;
+}
+
+.enjinmel-logs-table .column-timestamp {
+	width: 150px;
+}
+
+.enjinmel-logs-table .column-to {
+	width: 200px;
+	word-break: break-word;
+}
+
+.enjinmel-logs-table .column-subject {
+	width: 250px;
+	word-break: break-word;
+}
+
+.enjinmel-logs-table .column-status {
+	width: 100px;
+	text-align: center;
+}
+
+.enjinmel-logs-table .column-error {
+	word-break: break-word;
+}
+
+.status-badge {
+	display: inline-block;
+	padding: 3px 8px;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.status-badge.status-sent {
+	background-color: #d4edda;
+	color: #155724;
+	border: 1px solid #c3e6cb;
+}
+
+.status-badge.status-failed {
+	background-color: #f8d7da;
+	color: #721c24;
+	border: 1px solid #f5c6cb;
+}
+
+.error-message {
+	color: #d63638;
+	font-size: 13px;
+	cursor: help;
+}
+
+.error-message-empty {
+	color: #999;
+}
+
+.tablenav .actions {
+	margin-right: 5px;
+}
+
+.no-items td {
+	text-align: center;
+	padding: 30px !important;
+	color: #666;
+	font-style: italic;
+}

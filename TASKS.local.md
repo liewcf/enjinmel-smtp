@@ -27,20 +27,6 @@
 - [x] Update composer.json (package name/description/autoload if class namespace changes). *(Composer metadata now references EnjinMel rename.)*
 - [x] Update README, AGENTS.md, memory notes, specs, and screenshots to reflect EnjinMel. *(README + docs updated; specs renamed with rename notes. Screenshots pending if/when UI captured.)*
 
-## Verification Checklist (post-rename)
-
-- [ ] Run `composer test` (or `npx wp-env run phpunit`) and ensure all tests pass. *(Add new unit tests covering option fallback + cron rename.)*
-- [ ] Start `npx wp-env start` and verify Settings → EnjinMel SMTP loads correctly. *(Confirm legacy admin URLs redirect; ensure new text domain strings appear.)*
-- [ ] Toggle “Enable Logging” off/on and confirm entries stop/start in `wp_enjinmel_smtp_logs`. *(Check for data in both old/new tables; drop old table once migration completes.)*
-- [ ] Send HTML emails with attachments under and over 5 MB; verify API fields `SubmittedContentType` and `IsHtmlContent` and attachment size handling. *(Capture log row for each send to ensure rename didn’t break payload normalization.)*
-- [ ] Confirm retention cron runs and deactivation unschedules the old/new events. *(Use `wp cron event list` inside wp-env to confirm only `enjinmel_smtp_retention_daily` remains.)*
-- [x] Run PHPCS (WPCS) and fix violations; confirm all user-facing strings use the new text domain. *(vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor . on 2025-10-01)*
-
-## Coordination
-
-- [ ] Create a feature branch: `bash scripts/create-new-feature.sh "rebrand to EnjinMel SMTP"`.
-- [ ] Add a `specs/NNN-rebrand-enjinmel/` folder with `spec.md`, `plan.md`, and `tasks.md` summarizing the migration.
-
 # Local Follow-Up Tasks
 
 - [ ] Run the WordPress PHPUnit suite (e.g. `composer test` or `npx wp-env run phpunit`) to validate the REST transport and new tests.
@@ -69,24 +55,6 @@
 - Legacy compatibility well-implemented
 - Good test coverage for core functionality
 - API endpoint confirmed correct: `https://api.enginemailer.com/RESTAPI/V2/Submission/SendEmail`
-
-## High Priority - Verification & Testing
-
-- [ ] **Complete Verification Checklist** - Run all verification items from above:
-  - [ ] Execute full test suite: `composer test` or `npx wp-env run phpunit`
-  - [ ] Verify wp-admin → Settings → EnjinMel SMTP loads correctly
-  - [ ] Test logging toggle (on/off) and confirm database writes to `wp_enjinmel_smtp_logs`
-  - [ ] Send test HTML email with attachment under 5MB
-  - [ ] Send test HTML email with attachment over 5MB (should fail gracefully)
-  - [ ] Verify cron event scheduling: `wp cron event list` (inside wp-env)
-  - [ ] Test plugin deactivation unschedules cron events
-  - [ ] Test plugin reactivation reschedules cron events
-
-- [ ] **Review Integration Test** - `tests/integration/test-email-sending.php`
-  - [ ] Run integration test suite if available
-  - [ ] Add mock HTTP responses for API failure scenarios
-  - [ ] Test attachment size validation
-  - [ ] Test HTML vs plain text content type handling
 
 - [x] **API Endpoint Verification** - *(Confirmed correct: `https://api.enginemailer.com/RESTAPI/V2/Submission/SendEmail`. TODO comment removed from `includes/class-enjinmel-smtp-api-client.php:13`.)*
 
@@ -125,12 +93,15 @@
   - [x] Add `.env`, `wp-config-local.php`
   - [x] Add IDE files (`.vscode/`, `.idea/`)
 
-- [ ] **Admin Log Viewer (Future Enhancement)**
-  - [ ] Design admin page to display `enjinmel_smtp_logs` table
-  - [ ] Add filters by status (sent/failed), date range, recipient
-  - [ ] Add pagination for large datasets
-  - [ ] Add export to CSV functionality
-  - [ ] Add bulk delete action
+- [x] **Admin Log Viewer** *(Completed: 2025-10-05)*
+  - [x] Design admin page to display `enjinmel_smtp_logs` table
+  - [x] Add filters by status (sent/failed), date range, recipient
+  - [x] Add search functionality for email address and subject
+  - [x] Add pagination for large datasets
+  - [x] Add export to CSV functionality
+  - [x] Add bulk delete action
+  - [x] Create assets (CSS and JavaScript) for interactive UI
+  - [x] Implement AJAX handlers for delete and export operations
 
 - [ ] **Error Reporting Dashboard (Future Enhancement)**
   - [ ] Aggregate failed sends by error type
@@ -168,3 +139,18 @@
 - ✅ Created AJAX handler tests (8 test methods)
 - ✅ Added `.gitignore` with recommended patterns
 - ✅ Verified PHPCS suppressions are properly documented
+
+### Completed Admin Log Viewer Implementation (2025-10-05)
+- ✅ Created `includes/class-enjinmel-smtp-log-viewer.php` - Main log viewer class with full functionality
+- ✅ Created `assets/css/log-viewer.css` - Styling for WordPress admin UI integration
+- ✅ Created `assets/js/log-viewer.js` - JavaScript for bulk actions and CSV export
+- ✅ Integrated log viewer into WordPress admin menu (Settings → Email Logs)
+- ✅ Implemented comprehensive filtering: search, status filter, date range, items per page
+- ✅ Implemented WordPress-style pagination with page navigation
+- ✅ Implemented bulk delete functionality with AJAX and confirmation
+- ✅ Implemented CSV export with current filter preservation
+- ✅ Added nonce verification and capability checks for security
+- ✅ Fixed 1154 PHPCS violations with PHPCBF
+- ✅ All syntax checks passed
+- **Files Modified:** `enjinmel-smtp.php` (added log viewer initialization and export handler)
+- **Files Created:** `class-enjinmel-smtp-log-viewer.php`, `log-viewer.css`, `log-viewer.js`

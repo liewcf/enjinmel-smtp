@@ -22,6 +22,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-enjinmel-smtp-settings-
 require_once plugin_dir_path(__FILE__) . 'includes/class-enjinmel-smtp-encryption.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-enjinmel-smtp-api-client.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-enjinmel-smtp-logging.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-enjinmel-smtp-log-viewer.php';
 
 /**
  * Return the plugin settings option key.
@@ -289,6 +290,27 @@ function enjinmel_smtp_redirect_legacy_settings()
     }
 }
 add_action('admin_init', 'enjinmel_smtp_redirect_legacy_settings', 5);
+
+/**
+ * Handle export logs action.
+ *
+ * @return void
+ */
+function enjinmel_smtp_handle_export_logs()
+{
+    if (! isset($_GET['action']) || 'enjinmel_smtp_export_logs' !== $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in export handler.
+        return;
+    }
+
+    if (! isset($_GET['page']) || 'enjinmel-smtp-logs' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only inspection.
+        return;
+    }
+
+    if (class_exists('EnjinMel_SMTP_Log_Viewer') && method_exists('EnjinMel_SMTP_Log_Viewer', 'ajax_export_logs') ) {
+        EnjinMel_SMTP_Log_Viewer::ajax_export_logs();
+    }
+}
+add_action('admin_init', 'enjinmel_smtp_handle_export_logs', 1);
 
 /**
  * Basic sanitization for query args used in redirects.
@@ -595,6 +617,11 @@ add_filter('pre_wp_mail', 'enjinmel_smtp_pre_wp_mail', 10, 2);
 // Initialize logging hooks.
 if (class_exists('EnjinMel_SMTP_Logging') ) {
     EnjinMel_SMTP_Logging::init();
+}
+
+// Initialize log viewer.
+if (class_exists('EnjinMel_SMTP_Log_Viewer') ) {
+    EnjinMel_SMTP_Log_Viewer::init();
 }
 
 /**
