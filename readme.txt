@@ -91,7 +91,6 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 * Admin log viewer with filtering and export
 * Test email functionality
 * Legacy EngineMail compatibility hooks
-* Automatic migration from EngineMail to EnjinMel naming
 
 == Upgrade Notice ==
 
