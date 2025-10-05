@@ -1,8 +1,8 @@
 === EnjinMel SMTP ===
 Contributors: cheonfongliew
 Tags: email, smtp, transactional email, wp_mail, email delivery
-Requires at least: 5.0
-Tested up to: 6.7
+Requires at least: 5.3
+Tested up to: 6.8.3
 Requires PHP: 7.4
 Stable tag: 0.1.0
 License: GPLv2 or later
