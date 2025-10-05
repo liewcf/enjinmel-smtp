@@ -33,7 +33,7 @@
 
 ### Functionality
 - [x] Email interception via `pre_wp_mail` filter
-- [x] EnjinMel REST API integration
+- [x] Enginemailer REST API integration
 - [x] Email logging with database storage
 - [x] Admin log viewer with filtering and export
 - [x] Test email functionality
@@ -104,7 +104,7 @@ enjinmel-smtp/
 ## 📋 Installation Requirements for Users
 
 ### Required
-- EnjinMel API key from https://portal.enginemailer.com/Account/APIs
+- Enginemailer API key from https://portal.enginemailer.com/Account/APIs
 
 ### Optional (Enhanced Security)
 For shared hosting or high-security environments, users can optionally add these constants to `wp-config.php`:
@@ -148,7 +148,7 @@ After installation in a test environment, verify:
 
 Version 0.1.0 (2025-10-05):
 - Initial release
-- Full EnjinMel REST API integration
+- Full Enginemailer REST API integration
 - Email logging and management
 - Admin interface with log viewer
 - Security: encrypted storage, input sanitization, output escaping

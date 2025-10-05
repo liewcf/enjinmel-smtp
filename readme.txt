@@ -8,16 +8,16 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Replace WordPress default email sending with EnjinMel API for enhanced deliverability and reliability.
+Replace WordPress default email sending with Enginemailer API for enhanced deliverability and reliability.
 
 == Description ==
 
-EnjinMel SMTP replaces the default WordPress email sending functionality with the powerful EnjinMel REST API (formerly EngineMail) to ensure your transactional emails are delivered reliably and efficiently.
+EnjinMel SMTP replaces the default WordPress email sending functionality with the powerful Enginemailer REST API (formerly EngineMail) to ensure your transactional emails are delivered reliably and efficiently.
 
 **Key Features:**
 
 * **Seamless Integration** - Automatically intercepts all `wp_mail()` calls
-* **Enhanced Deliverability** - Routes emails through EnjinMel's reliable email infrastructure
+* **Enhanced Deliverability** - Routes emails through Enginemailer's reliable email infrastructure
 * **Comprehensive Logging** - Track email sends with detailed logs including timestamps, recipients, and status
 * **Test Email Functionality** - Verify your configuration by sending test emails
 * **Secure API Key Storage** - API keys are encrypted using AES-256-CBC encryption
@@ -39,7 +39,7 @@ EnjinMel SMTP replaces the default WordPress email sending functionality with th
 1. Upload the plugin files to `/wp-content/plugins/enjinmel-smtp/`, or install through the WordPress plugins screen
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Navigate to EnjinMel SMTP settings page
-4. Enter your EnjinMel API key (get one at https://portal.enginemailer.com/Account/APIs)
+4. Enter your Enginemailer API key (get one at https://portal.enginemailer.com/Account/APIs)
 5. Configure your default From Name and From Email
 6. Send a test email to verify everything works
 
@@ -53,7 +53,7 @@ define('ENJINMEL_SMTP_IV', 'your-16-character-iv-here');
 
 = Where do I get an API key? =
 
-You can obtain an API key from the EnjinMel portal at https://portal.enginemailer.com/Account/APIs
+You can obtain an API key from the Enginemailer portal at https://portal.enginemailer.com/Account/APIs
 
 = What are the encryption constants and why do I need them? =
 
@@ -85,7 +85,7 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 
 = 0.1.0 =
 * Initial release
-* EnjinMel REST API integration
+* Enginemailer REST API integration
 * Encrypted API key storage
 * Email logging with retention management
 * Admin log viewer with filtering and export

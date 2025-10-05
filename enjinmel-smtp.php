@@ -513,7 +513,7 @@ function enjinmel_smtp_settings_sanitize_legacy( $input ) {
 }
 
 /**
- * Short-circuit wp_mail() to submit messages via the EnjinMel REST API.
+ * Short-circuit wp_mail() to submit messages via the Enginemailer REST API.
  *
  * @param  null|bool|WP_Error $preemptive_return Preemptive return value.
  * @param  array              $args              Mail arguments.
