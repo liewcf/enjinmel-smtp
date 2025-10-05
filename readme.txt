@@ -12,7 +12,17 @@ Replace WordPress default email sending with Enginemailer API for enhanced deliv
 
 == Description ==
 
-EnjinMel SMTP replaces the default WordPress email sending functionality with the powerful Enginemailer REST API (formerly EngineMail) to ensure your transactional emails are delivered reliably and efficiently.
+EnjinMel SMTP replaces the default WordPress email sending functionality with the powerful Enginemailer REST API to ensure your transactional emails are delivered reliably and efficiently.
+
+**Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer or the legacy EngineMail project.
+
+**Understanding the Names:**
+
+* **EnjinMel SMTP** - The name of this WordPress plugin
+* **Enginemailer** - The third-party email delivery API service (https://enginemailer.com)
+* **EngineMail** - Legacy naming convention maintained for backward compatibility with existing integrations
+
+This plugin connects your WordPress site to the Enginemailer service API. It maintains legacy EngineMail hooks to ensure existing customizations continue working.
 
 **Key Features:**
 
@@ -111,4 +121,4 @@ Initial release of EnjinMel SMTP plugin with full email delivery and logging fea
 * Extensible architecture with filters and actions
 
 **Support:**
-For issues, feature requests, or contributions, visit: https://github.com/liewcf/enjinmel-smtp
+For issues, feature requests, or contributions, please refer to the project repository.

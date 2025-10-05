@@ -1,13 +1,21 @@
 # EnjinMel SMTP
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/liewcf/enjinmel-smtp)
 [![WordPress Compatibility](https://img.shields.io/badge/wordpress-5.3%2B-blue.svg)](https://wordpress.org/)
 [![PHP Version](https://img.shields.io/badge/php-7.4%2B-purple.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-GPLv2%2B-green.svg)](LICENSE.txt)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](#)
 
 Replace WordPress default email sending with the Enginemailer REST API for enhanced deliverability and reliability.
 
-> **Note:** EnjinMel SMTP is an independent project built to integrate WordPress with the Enginemailer email service. This plugin maintains backward compatibility with legacy EngineMail hooks.
+> **Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer or the legacy EngineMail project.
+
+## Understanding the Names
+
+- **EnjinMel SMTP** - The name of this WordPress plugin
+- **Enginemailer** - The third-party email delivery API service (https://enginemailer.com)
+- **EngineMail** - Legacy naming convention maintained for backward compatibility with existing integrations
+
+This plugin connects your WordPress site to the Enginemailer service API. It maintains legacy EngineMail hooks to ensure existing customizations continue working.
 
 ## Features
 
@@ -32,7 +40,7 @@ Replace WordPress default email sending with the Enginemailer REST API for enhan
 
 ### Via WordPress Admin
 
-1. Download the latest release from [GitHub Releases](https://github.com/liewcf/enjinmel-smtp/releases)
+1. Download the latest release from the plugin repository
 2. Navigate to **Plugins → Add New → Upload Plugin**
 3. Choose the downloaded ZIP file and click **Install Now**
 4. Click **Activate Plugin**
@@ -44,11 +52,7 @@ Replace WordPress default email sending with the Enginemailer REST API for enhan
 2. Activate the plugin through the **Plugins** menu in WordPress
 3. Configure the plugin via **EnjinMel SMTP → Settings**
 
-### Via Composer
 
-```bash
-composer require enjinmel/enjinmel-smtp
-```
 
 ## Configuration
 
@@ -165,7 +169,7 @@ Access comprehensive email logs at **EnjinMel SMTP → Email Logs**:
 
 ```bash
 # Clone the repository
-git clone https://github.com/liewcf/enjinmel-smtp.git
+git clone <repository-url>
 cd enjinmel-smtp
 
 # Install dependencies
@@ -225,7 +229,7 @@ bash scripts/build-dist.sh
 
 ### Reporting Security Issues
 
-If you discover a security vulnerability, please email security@example.com. Do not create a public issue.
+If you discover a security vulnerability, please report it via GitHub Security Advisories or create a private issue. Do not create a public issue for security vulnerabilities.
 
 ## Compatibility
 
@@ -282,13 +286,11 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
 ## Support
 
-- **Documentation:** [GitHub Wiki](https://github.com/liewcf/enjinmel-smtp/wiki)
-- **Issues:** [GitHub Issues](https://github.com/liewcf/enjinmel-smtp/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/liewcf/enjinmel-smtp/discussions)
+For support, documentation, issues, and feature requests, please refer to the project repository.
 
 ## Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Contributions are welcome!
 
 ### Development Workflow
 
@@ -307,8 +309,8 @@ This project is licensed under the GNU General Public License v2.0 or later - se
 
 ## Credits
 
-- **Author:** [Liew CheonFong](https://github.com/liewcf)
-- **Contributors:** [List of contributors](https://github.com/liewcf/enjinmel-smtp/graphs/contributors)
+- **Author:** Liew CheonFong
+- **License:** GPLv2 or later
 
 ## Acknowledgments
 
@@ -318,4 +320,4 @@ This project is licensed under the GNU General Public License v2.0 or later - se
 
 ---
 
-**Made with ❤️ for WordPress**
+**Made for WordPress**
