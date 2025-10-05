@@ -128,15 +128,18 @@ class EnjinMel_SMTP_Log_Viewer {
 	 * Render the filter form.
 	 */
 	private static function render_filters() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only use of $_GET to prefill form inputs; values are sanitized immediately below.
 		$search    = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		$status    = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
 		$date_from = isset( $_GET['date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['date_from'] ) ) : '';
 		$date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['date_to'] ) ) : '';
 		$per_page  = isset( $_GET['per_page'] ) ? absint( $_GET['per_page'] ) : 20;
+		// phpcs:enable
 		?>
 		<div class="enjinmel-log-filters">
 			<form method="get">
 				<input type="hidden" name="page" value="enjinmel-smtp-logs">
+				<?php wp_nonce_field( 'enjinmel_smtp_logs_filter', 'enjinmel_smtp_logs_filter_nonce' ); ?>
 				
 				<div class="filter-row">
 					<input type="search" 
@@ -436,10 +439,12 @@ class EnjinMel_SMTP_Log_Viewer {
 		global $wpdb;
 		$table = enjinmel_smtp_active_log_table();
 
+		// phpcs:disable WordPress.Security.NonceVerification -- Nonce verified above via check_ajax_referer; values sanitized below.
 		$search    = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		$status    = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
 		$date_from = isset( $_GET['date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['date_from'] ) ) : '';
 		$date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['date_to'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification
 
 		$where_clauses = array( '1=1' );
 		$prepare_args  = array();
@@ -489,7 +494,7 @@ class EnjinMel_SMTP_Log_Viewer {
 			}
 		}
 
-		fclose( $output );
+		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Streaming to php://output is appropriate for CSV export.
 		exit;
 	}
 

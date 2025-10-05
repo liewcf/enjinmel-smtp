@@ -42,7 +42,7 @@ if ( $purge ) {
 
 	foreach ( $tables as $table ) {
 		$safe = preg_replace( '/[^A-Za-z0-9_]/', '', (string) $table );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Explicit uninstall-time cleanup on sanitized table names.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Explicit uninstall-time cleanup on sanitized table names.
 		$wpdb->query( "DROP TABLE IF EXISTS {$safe}" );
 	}
 }
