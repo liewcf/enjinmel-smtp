@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-GPLv2%2B-green.svg)](LICENSE.txt)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](#)
 
-Replace WordPress default email sending with the Enginemailer REST API for enhanced deliverability and reliability.
+Replace WordPress's default email sending with the Enginemailer REST API for improved deliverability and reliability.
 
 > **Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer.
 
@@ -180,17 +180,17 @@ npx wp-env start
 ### Running Tests
 
 ```bash
-# Run all tests
-composer test
+# Run PHPUnit tests
+vendor/bin/phpunit
 
-# Run PHPUnit tests directly
-npx wp-env run phpunit
+# Using wp-env (if configured)
+npx wp-env run tests-cli phpunit
 
 # Check code standards
-./vendor/bin/phpcs
+vendor/bin/phpcs
 
 # Fix code standards automatically
-./vendor/bin/phpcbf
+vendor/bin/phpcbf
 ```
 
 ### Development Commands
