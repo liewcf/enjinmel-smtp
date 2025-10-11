@@ -10,6 +10,7 @@ class ComposerStaticInitdf83cb10d40801d8f6980eab5e171777
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
         '38fbb71d514eee25044aa9d94851ee76' => __DIR__ . '/..' . '/wp-phpunit/wp-phpunit/__loaded.php',
+        'ffc3f143bb262a646cacf3176700152c' => __DIR__ . '/../..' . '/enjinmel-smtp.php',
     );
 
     public static $prefixLengthsPsr4 = array (

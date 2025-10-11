@@ -1,24 +1,15 @@
 <?php return array(
     'root' => array(
-        'name' => '__root__',
+        'name' => 'enjinmel/enjinmel-smtp',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'd4746fbb05681d9794e670aa9148d3f955318368',
-        'type' => 'library',
+        'reference' => '68e2818c9a3a9e79a872392b85821b8893ee0e91',
+        'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
-        '__root__' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => 'd4746fbb05681d9794e670aa9148d3f955318368',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../../',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
         'dealerdirect/phpcodesniffer-composer-installer' => array(
             'pretty_version' => 'v1.1.2',
             'version' => '1.1.2.0',
@@ -27,6 +18,15 @@
             'install_path' => __DIR__ . '/../dealerdirect/phpcodesniffer-composer-installer',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'enjinmel/enjinmel-smtp' => array(
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '68e2818c9a3a9e79a872392b85821b8893ee0e91',
+            'type' => 'wordpress-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'myclabs/deep-copy' => array(
             'pretty_version' => '1.13.4',
