@@ -1,0 +1,21 @@
+{
+    "name": "enjinmel/enjinmel-smtp",
+    "description": "WordPress plugin that routes wp_mail() through the EnjinMel REST API (formerly EngineMail).",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "wp-coding-standards/wpcs": "*",
+        "phpunit/phpunit": "^12.3",
+        "wp-phpunit/wp-phpunit": "^6.8"
+    },
+    "autoload": {
+        "files": [
+            "enjinmel-smtp.php"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

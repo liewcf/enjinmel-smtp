@@ -1,0 +1,36 @@
+# Development files
+.git
+.gitignore
+.distignore
+.gemini
+composer.json
+composer.lock
+phpunit.xml
+README.md
+TASKS.local.md
+AGENTS.md
+CLAUDE.md
+PUBLICATION.md
+
+# Build directories
+dist/
+node_modules/
+vendor/
+
+# Development scripts
+scripts/
+
+# Test files
+tests/
+
+# Specs and planning
+specs/
+memory/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+._*
