@@ -73,6 +73,7 @@ memory/
 AGENTS.md
 CLAUDE.md
 *.local.md
+TODO.md
 
 # Development and internal directories
 .claude/

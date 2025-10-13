@@ -2,7 +2,7 @@
 Contributors: cheonfongliew
 Tags: email, smtp, transactional email, wp_mail, email delivery
 Requires at least: 5.3
-Tested up to: 6.8.3
+Tested up to: 6.8
 Requires PHP: 7.4
 Stable tag: 0.1.0
 License: GPLv2 or later
@@ -102,6 +102,14 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 
 = 0.1.0 =
 Initial release of EnjinMel SMTP plugin with full email delivery and logging features.
+
+== Privacy ==
+
+This plugin stores limited email metadata to aid troubleshooting and deliverability monitoring:
+
+* Stored: recipient email address(es), subject, send status (sent/failed), timestamp, and an error message when available.
+* Not stored: email body content or attachments.
+* Retention: logs are kept for 90 days by default and purged daily. Developers can adjust the retention via the `enjinmel_smtp_retention_days` filter, clear logs from the admin UI, or purge on uninstall by defining `ENJINMEL_SMTP_PURGE_LOGS_ON_UNINSTALL` in `wp-config.php`.
 
 == Additional Information ==
 
