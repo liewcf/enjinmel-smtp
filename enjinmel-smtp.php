@@ -414,7 +414,7 @@ function enjinmel_smtp_activate() {
 
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-	$sql = "CREATE TABLE {$table_name} (
+	$sql = "CREATE TABLE `{$table_name}` (
         id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
         timestamp DATETIME NOT NULL,
         to_email VARCHAR(255) NOT NULL,
