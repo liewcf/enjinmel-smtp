@@ -50,14 +50,14 @@ class EnjinMel_SMTP_Log_Viewer {
 
 		wp_enqueue_style(
 			'enjinmel-smtp-log-viewer',
-			plugins_url( 'assets/css/log-viewer.css', __DIR__ ),
+			plugins_url( '../assets/css/log-viewer.css', __FILE__ ),
 			array(),
 			'0.1.0'
 		);
 
 		wp_enqueue_script(
 			'enjinmel-smtp-log-viewer',
-			plugins_url( 'assets/js/log-viewer.js', __DIR__ ),
+			plugins_url( '../assets/js/log-viewer.js', __FILE__ ),
 			array( 'jquery' ),
 			'0.1.0',
 			true
@@ -334,7 +334,7 @@ class EnjinMel_SMTP_Log_Viewer {
 	private static function get_logs() {
 		global $wpdb;
 
-		$table        = enjinmel_smtp_active_log_table();
+		$table        = enjinmel_smtp_sanitize_table_name( enjinmel_smtp_active_log_table() );
 		$search       = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		$status       = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
 		$date_from    = isset( $_GET['date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['date_from'] ) ) : '';
@@ -371,7 +371,7 @@ class EnjinMel_SMTP_Log_Viewer {
 
 		$where_sql = implode( ' AND ', $where_clauses );
 
-		$count_sql = "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}";
+		$count_sql = "SELECT COUNT(*) FROM `{$table}` WHERE {$where_sql}";
 		if ( ! empty( $prepare_args ) ) {
 			$count_sql = $wpdb->prepare( $count_sql, $prepare_args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
@@ -379,7 +379,7 @@ class EnjinMel_SMTP_Log_Viewer {
 
 		$offset = ( $current_page - 1 ) * $per_page;
 
-		$logs_sql = "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d";
+		$logs_sql = "SELECT * FROM `{$table}` WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d";
 		$args     = array_merge( $prepare_args, array( $per_page, $offset ) );
 		$logs_sql = $wpdb->prepare( $logs_sql, $args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
@@ -410,9 +410,9 @@ class EnjinMel_SMTP_Log_Viewer {
 		}
 
 		global $wpdb;
-		$table        = enjinmel_smtp_active_log_table();
+		$table        = enjinmel_smtp_sanitize_table_name( enjinmel_smtp_active_log_table() );
 		$placeholders = implode( ',', array_fill( 0, count( $log_ids ), '%d' ) );
-		$deleted      = $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN ({$placeholders})", $log_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$deleted      = $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE id IN ({$placeholders})", $log_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		if ( false === $deleted ) {
 			wp_send_json_error( array( 'message' => __( 'Failed to delete logs.', 'enjinmel-smtp' ) ), 500 );
@@ -437,7 +437,7 @@ class EnjinMel_SMTP_Log_Viewer {
 		}
 
 		global $wpdb;
-		$table = enjinmel_smtp_active_log_table();
+		$table = enjinmel_smtp_sanitize_table_name( enjinmel_smtp_active_log_table() );
 
 		// phpcs:disable WordPress.Security.NonceVerification -- Nonce verified above via check_ajax_referer; values sanitized below.
 		$search    = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
@@ -473,7 +473,7 @@ class EnjinMel_SMTP_Log_Viewer {
 
 		$where_sql = implode( ' AND ', $where_clauses );
 
-		$logs_sql = "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY timestamp DESC";
+		$logs_sql = "SELECT * FROM `{$table}` WHERE {$where_sql} ORDER BY timestamp DESC";
 		if ( ! empty( $prepare_args ) ) {
 			$logs_sql = $wpdb->prepare( $logs_sql, $prepare_args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
@@ -509,9 +509,9 @@ class EnjinMel_SMTP_Log_Viewer {
 		}
 
 		global $wpdb;
-		$table = enjinmel_smtp_active_log_table();
+		$table = enjinmel_smtp_sanitize_table_name( enjinmel_smtp_active_log_table() );
 
-		$deleted = $wpdb->query( "TRUNCATE TABLE {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$deleted = $wpdb->query( "TRUNCATE TABLE `{$table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( false === $deleted ) {
 			wp_send_json_error( array( 'message' => __( 'Failed to clear all logs.', 'enjinmel-smtp' ) ), 500 );

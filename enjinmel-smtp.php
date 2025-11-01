@@ -139,25 +139,7 @@ function enjinmel_smtp_get_setting( $key, $default_value = null ) {
 
 
 
-/**
- * Handle export logs action.
- *
- * @return void
- */
-function enjinmel_smtp_handle_export_logs() {
-	if ( ! isset( $_GET['action'] ) || 'enjinmel_smtp_export_logs' !== $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in export handler.
-		return;
-	}
 
-	if ( ! isset( $_GET['page'] ) || 'enjinmel-smtp-logs' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only inspection.
-		return;
-	}
-
-	if ( class_exists( 'EnjinMel_SMTP_Log_Viewer' ) && method_exists( 'EnjinMel_SMTP_Log_Viewer', 'ajax_export_logs' ) ) {
-		EnjinMel_SMTP_Log_Viewer::ajax_export_logs();
-	}
-}
-add_action( 'admin_init', 'enjinmel_smtp_handle_export_logs', 1 );
 
 /**
  * Basic sanitization for query args used in redirects.
