@@ -529,11 +529,23 @@ class EnjinMel_SMTP_Log_Viewer {
 	/**
 	 * Truncate text to a specified length.
 	 *
+	 * Uses multibyte-safe functions when available to properly handle
+	 * international characters, emoji, and other multibyte sequences.
+	 *
 	 * @param  string $text   Text to truncate.
 	 * @param  int    $length Maximum length.
 	 * @return string
 	 */
 	private static function truncate_text( $text, $length ) {
+		// Use multibyte functions if available for proper Unicode handling.
+		if ( function_exists( 'mb_strlen' ) ) {
+			if ( mb_strlen( $text, 'UTF-8' ) <= $length ) {
+				return $text;
+			}
+			return mb_substr( $text, 0, $length, 'UTF-8' ) . '...';
+		}
+
+		// Fallback to regular functions.
 		if ( strlen( $text ) <= $length ) {
 			return $text;
 		}

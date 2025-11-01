@@ -420,7 +420,8 @@ function enjinmel_smtp_activate() {
         status VARCHAR(20) NOT NULL,
         error_message TEXT,
         PRIMARY KEY  (id),
-        KEY timestamp (timestamp)
+        KEY timestamp (timestamp),
+        KEY status_ts (status, timestamp)
     ) {$charset_collate};";
 
 	dbDelta( $sql );

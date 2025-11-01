@@ -91,7 +91,39 @@ class EnjinMel_SMTP_Settings_Page {
 			}
 		}
 		?>
-		<input type='text' autocomplete='off' name='enjinmel_smtp_settings[api_key]' value='<?php echo esc_attr( $display_value ); ?>' placeholder='<?php echo esc_attr( $placeholder ); ?>'>
+		<div class="enjinmel-api-key-wrapper" style="display: flex; align-items: center; gap: 8px;">
+			<input 
+				type='password' 
+				id='enjinmel_smtp_api_key'
+				autocomplete='off' 
+				name='enjinmel_smtp_settings[api_key]' 
+				value='<?php echo esc_attr( $display_value ); ?>' 
+				placeholder='<?php echo esc_attr( $placeholder ); ?>'
+				style="width: 300px;">
+			<button 
+				type="button" 
+				id="enjinmel_smtp_toggle_api_key" 
+				class="button button-secondary"
+				style="min-width: 60px;">
+				<?php echo esc_html__( 'Show', 'enjinmel-smtp' ); ?>
+			</button>
+		</div>
+		<script type="text/javascript">
+		(function($) {
+			$('#enjinmel_smtp_toggle_api_key').on('click', function() {
+				var input = $('#enjinmel_smtp_api_key');
+				var button = $(this);
+				
+				if (input.attr('type') === 'password') {
+					input.attr('type', 'text');
+					button.text('<?php echo esc_js( __( 'Hide', 'enjinmel-smtp' ) ); ?>');
+				} else {
+					input.attr('type', 'password');
+					button.text('<?php echo esc_js( __( 'Show', 'enjinmel-smtp' ) ); ?>');
+				}
+			});
+		})(jQuery);
+		</script>
 		<?php
 	}
 
