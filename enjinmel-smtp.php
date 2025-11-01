@@ -282,9 +282,30 @@ function enjinmel_smtp_settings_sanitize( $input ) {
 	$output['campaign_name']  = isset( $input['campaign_name'] ) ? sanitize_text_field( $input['campaign_name'] ) : '';
 	$output['template_id']    = isset( $input['template_id'] ) ? sanitize_text_field( $input['template_id'] ) : '';
 	$output['from_name']      = isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '';
-	$output['from_email']     = isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '';
-	$output['force_from']     = ! empty( $input['force_from'] ) ? 1 : 0;
-	$output['enable_logging'] = ! empty( $input['enable_logging'] ) ? 1 : 0;
+	
+	// Validate and sanitize from_email.
+	$from_email = isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '';
+	if ( ! empty( $from_email ) && ! is_email( $from_email ) ) {
+		add_settings_error(
+			enjinmel_smtp_option_key(),
+			'enjinmel_invalid_from_email',
+			__( 'The sender email address is invalid. Please enter a valid email address.', 'enjinmel-smtp' ),
+			'error'
+		);
+		// Preserve existing valid email on validation failure.
+		$from_email = isset( $existing['from_email'] ) ? $existing['from_email'] : '';
+	}
+	$output['from_email'] = $from_email;
+	
+	$output['force_from'] = ! empty( $input['force_from'] ) ? 1 : 0;
+	
+	// Default logging to enabled (1) if not explicitly set.
+	if ( isset( $input['enable_logging'] ) ) {
+		$output['enable_logging'] = ! empty( $input['enable_logging'] ) ? 1 : 0;
+	} else {
+		// Preserve existing value or default to enabled.
+		$output['enable_logging'] = isset( $existing['enable_logging'] ) ? $existing['enable_logging'] : 1;
+	}
 
 	if ( isset( $input['api_key'] ) && '' !== $input['api_key'] ) {
 		$submitted_key = trim( $input['api_key'] );

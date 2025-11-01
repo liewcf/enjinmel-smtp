@@ -141,9 +141,23 @@ class EnjinMel_SMTP_Encryption {
 			$key = self::generate_random_key();
 			$iv  = self::generate_random_key();
 
-			if ( false === update_option( 'enjinmel_smtp_encryption_key', $key ) || false === update_option( 'enjinmel_smtp_encryption_iv', $iv ) ) {
+			// Use add_option with autoload=no to prevent loading secrets on every request.
+			$key_added = add_option( 'enjinmel_smtp_encryption_key', $key, '', 'no' );
+			$iv_added  = add_option( 'enjinmel_smtp_encryption_iv', $iv, '', 'no' );
+
+			if ( ! $key_added || ! $iv_added ) {
 				return new WP_Error( 'enjinmel_key_generation_failed', __( 'Failed to generate and store encryption keys.', 'enjinmel-smtp' ) );
 			}
+		} else {
+			// Migration: Update existing options to autoload=no if they're currently autoloaded.
+			global $wpdb;
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->options} SET autoload = 'no' WHERE option_name IN (%s, %s) AND autoload = 'yes'",
+					'enjinmel_smtp_encryption_key',
+					'enjinmel_smtp_encryption_iv'
+				)
+			);
 		}
 
 		return array( $key, $iv );

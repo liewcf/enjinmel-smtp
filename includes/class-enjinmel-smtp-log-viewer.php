@@ -511,7 +511,13 @@ class EnjinMel_SMTP_Log_Viewer {
 		global $wpdb;
 		$table = enjinmel_smtp_sanitize_table_name( enjinmel_smtp_active_log_table() );
 
+		// Try TRUNCATE first (faster), fallback to DELETE if TRUNCATE fails.
 		$deleted = $wpdb->query( "TRUNCATE TABLE `{$table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		if ( false === $deleted ) {
+			// Fallback to DELETE FROM for hosts that restrict TRUNCATE permissions.
+			$deleted = $wpdb->query( "DELETE FROM `{$table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		}
 
 		if ( false === $deleted ) {
 			wp_send_json_error( array( 'message' => __( 'Failed to clear all logs.', 'enjinmel-smtp' ) ), 500 );
