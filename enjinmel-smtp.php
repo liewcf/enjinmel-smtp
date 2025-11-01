@@ -3,7 +3,7 @@
  * Plugin Name: EnjinMel SMTP
  * Plugin URI:  https://github.com/liewcf/enjinmel-smtp
  * Description: Replaces the default WordPress email sending functionality with Enginemailer API key for enhanced deliverability and reliability.
- * Version:     0.1.0
+ * Version:     0.2.0
  * Author:      Liew CheonFong
  * Author URI:  https://github.com/liewcf
  * License:     GPLv2 or later
@@ -12,7 +12,7 @@
  * Domain Path: /languages
  * Requires at least: 5.3
  * Requires PHP: 7.4
- * Tested up to: 6.8.3
+ * Tested up to: 6.8
  *
  * @package EnjinMel_SMTP
  */

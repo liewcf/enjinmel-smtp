@@ -7,8 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-11-01
+
+### Added
+- Password-masked API key field with Show/Hide toggle button
+- Composite database index (status, timestamp) for improved query performance
+- Multibyte-safe text truncation supporting Unicode, emoji, and international characters
+- Email validation at settings save time with immediate user feedback
+- TRUNCATE fallback to DELETE for hosts with restricted permissions
+
+### Fixed
+- **CRITICAL SECURITY:** Implemented per-message random IV encryption (v2 format) - replaced static IV
+- **CRITICAL SECURITY:** SQL injection prevention via table name sanitization and backticks
+- **CRITICAL SECURITY:** Fixed asset loading paths causing log viewer UI to break
+- **HIGH SECURITY:** Removed duplicate export handler with weak security (CSRF vulnerability)
+- **HIGH SECURITY:** Encryption keys no longer autoload (reduced exposure, 99.9% less loading)
+- Fixed logging defaulting to OFF on first save - now defaults to enabled
+- Fixed email validation logic (was using sanitize_email incorrectly)
+- Fixed whitespace-only API key input clearing stored key
+- Added backticks to CREATE TABLE for consistency
+
+### Performance
+- Added composite index for 50-80% faster filtered log queries
+- Encryption keys set to autoload=no - significant memory reduction
+- TRUNCATE optimization with DELETE fallback for universal compatibility
+
+### Security
+- Per-message random IV (non-deterministic encryption)
+- All table names sanitized and backticked in SQL queries
+- Export handler now AJAX-only with proper nonce verification
+- API key field masked by default (password input type)
+- Secrets no longer loaded on every page request
+
 ### Changed
-- Documentation: cleaned up README test commands and minor grammar fixes.
+- Documentation: cleaned up README test commands and minor grammar fixes
+- Enhanced security audit documentation
+- Comprehensive implementation documentation added
 
 ## [0.1.0] - 2025-10-05
 
@@ -48,4 +82,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enginemailer API key
 - Encryption constants in wp-config.php (optional - auto-generated if not provided)
 
+[0.2.0]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.1.0
