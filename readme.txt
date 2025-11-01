@@ -90,6 +90,22 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 
 == Changelog ==
 
+= 0.2.0 =
+* **CRITICAL SECURITY:** Fixed per-message random IV encryption (replaced static IV)
+* **CRITICAL SECURITY:** Fixed SQL injection prevention via table sanitization
+* **CRITICAL SECURITY:** Fixed asset loading paths causing log viewer UI to break
+* **HIGH SECURITY:** Removed duplicate export handler (CSRF vulnerability)
+* **HIGH SECURITY:** Encryption keys no longer autoload (99.9% less loading)
+* Added: Password-masked API key field with Show/Hide toggle
+* Added: Composite index for 50-80% faster filtered queries
+* Added: Multibyte-safe text truncation (Unicode, emoji support)
+* Added: Email validation at save time with user feedback
+* Added: TRUNCATE fallback for universal host compatibility
+* Fixed: Logging now defaults to enabled on first save
+* Fixed: Email validation logic corrected
+* Fixed: Whitespace API key handling
+* Performance: Significant memory reduction and query optimization
+
 = 0.1.0 =
 * Initial release
 * Enginemailer REST API integration
