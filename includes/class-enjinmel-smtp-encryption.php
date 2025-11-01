@@ -16,8 +16,11 @@ class EnjinMel_SMTP_Encryption {
 	/**
 	 * Encrypt data using the configured key material.
 	 *
+	 * Uses a random IV per encryption (v2 format) for enhanced security.
+	 * Format: v2:base64(IV || ciphertext)
+	 *
 	 * @param  string $data Plain text to encrypt.
-	 * @return string|WP_Error Base64 encoded cipher text or WP_Error on failure.
+	 * @return string|WP_Error Base64 encoded cipher text with IV or WP_Error on failure.
 	 */
 	public static function encrypt( $data ) {
 		if ( '' === $data ) {
@@ -29,18 +32,27 @@ class EnjinMel_SMTP_Encryption {
 			return $creds;
 		}
 
-		list( $key, $iv ) = $creds;
+		list( $key ) = $creds; // Only need key for v2 encryption.
 
-		$cipher = openssl_encrypt( $data, self::ENCRYPTION_METHOD, $key, 0, $iv );
-		if ( false === $cipher ) {
+		// Generate random IV for this encryption.
+		$iv_len = openssl_cipher_iv_length( self::ENCRYPTION_METHOD );
+		$iv     = random_bytes( $iv_len );
+
+		$raw = openssl_encrypt( $data, self::ENCRYPTION_METHOD, $key, OPENSSL_RAW_DATA, $iv );
+		if ( false === $raw ) {
 			return new WP_Error( 'enjinmel_encryption_failed', __( 'Unable to encrypt value.', 'enjinmel-smtp' ) );
 		}
 
-		return $cipher;
+		// Version 2: Store IV with ciphertext for per-message IV.
+		return 'v2:' . base64_encode( $iv . $raw );
 	}
 
 	/**
 	 * Decrypt data using the configured key material.
+	 *
+	 * Supports both v2 format (random IV per message) and legacy format (static IV).
+	 * v2 format: v2:base64(IV || ciphertext)
+	 * Legacy format: base64(ciphertext)
 	 *
 	 * @param  string $data Cipher text.
 	 * @return string|WP_Error Plain text or WP_Error when key material is missing/invalid.
@@ -55,9 +67,29 @@ class EnjinMel_SMTP_Encryption {
 			return $creds;
 		}
 
-		list( $key, $iv ) = $creds;
+		list( $key, $legacy_iv ) = $creds;
 
-		$plain = openssl_decrypt( $data, self::ENCRYPTION_METHOD, $key, 0, $iv );
+		// Version 2: Random IV embedded in ciphertext.
+		if ( strncmp( $data, 'v2:', 3 ) === 0 ) {
+			$blob = base64_decode( substr( $data, 3 ), true );
+			if ( false === $blob ) {
+				return new WP_Error( 'enjinmel_decryption_failed', __( 'Unable to decrypt value.', 'enjinmel-smtp' ) );
+			}
+
+			$iv_len = openssl_cipher_iv_length( self::ENCRYPTION_METHOD );
+			$iv     = substr( $blob, 0, $iv_len );
+			$raw    = substr( $blob, $iv_len );
+
+			$plain = openssl_decrypt( $raw, self::ENCRYPTION_METHOD, $key, OPENSSL_RAW_DATA, $iv );
+			if ( false === $plain ) {
+				return new WP_Error( 'enjinmel_decryption_failed', __( 'Unable to decrypt value.', 'enjinmel-smtp' ) );
+			}
+
+			return $plain;
+		}
+
+		// Legacy format: Static IV from credentials.
+		$plain = openssl_decrypt( $data, self::ENCRYPTION_METHOD, $key, 0, $legacy_iv );
 		if ( false === $plain ) {
 			return new WP_Error( 'enjinmel_decryption_failed', __( 'Unable to decrypt value.', 'enjinmel-smtp' ) );
 		}
