@@ -220,17 +220,24 @@ class EnjinMel_SMTP_API_Client {
 
 		$to_emails = implode( ',', $normalized['to'] );
 
-		$is_html = false !== strpos( $normalized['content_type'], 'html' );
+		// Ensure required fields have default values if empty.
+		$subject = ! empty( $normalized['subject'] ) ? $normalized['subject'] : '(no subject)';
+		$message = ! empty( $normalized['message'] ) ? $normalized['message'] : ' ';
 
+		// Build payload according to V2 API specification.
+		// Note: V2 API does not support SubmittedContentType or IsHtmlContent fields.
+		// HTML content should be sent as-is in SubmittedContent field.
 		$payload = array(
-			'ToEmail'              => $to_emails,
-			'Subject'              => $normalized['subject'],
-			'SenderEmail'          => $from['email'],
-			'SenderName'           => $from['name'],
-			'SubmittedContent'     => $normalized['message'],
-			'SubmittedContentType' => $normalized['content_type'],
-			'IsHtmlContent'        => $is_html,
+			'ToEmail'          => $to_emails,
+			'Subject'          => $subject,
+			'SenderEmail'      => $from['email'],
+			'SubmittedContent' => $message,
 		);
+
+		// Only include SenderName if not empty to avoid API null reference errors.
+		if ( ! empty( $from['name'] ) ) {
+			$payload['SenderName'] = $from['name'];
+		}
 
 		if ( ! empty( $default_campaign ) ) {
 			$payload['CampaignName'] = $default_campaign;
@@ -252,9 +259,8 @@ class EnjinMel_SMTP_API_Client {
 			$payload['BCCEmails'] = array_values( $normalized['headers']['bcc'] );
 		}
 
-		if ( ! empty( $normalized['headers']['reply_to'] ) ) {
-			$payload['ReplyToEmail'] = $normalized['headers']['reply_to'][0];
-		}
+		// Note: V2 API does not document a ReplyTo field.
+		// Reply-To headers may need to be handled via template or other means.
 
 		return $payload;
 	}

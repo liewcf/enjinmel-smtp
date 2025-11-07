@@ -3,7 +3,7 @@
  * Plugin Name: EnjinMel SMTP
  * Plugin URI:  https://github.com/liewcf/enjinmel-smtp
  * Description: Replaces the default WordPress email sending functionality with Enginemailer API key for enhanced deliverability and reliability.
- * Version:     0.2.0
+ * Version:     0.2.2
  * Author:      Liew CheonFong
  * Author URI:  https://github.com/liewcf
  * License:     GPLv2 or later
@@ -112,6 +112,16 @@ function enjinmel_smtp_get_settings( $default_value = array() ) {
 		return $default_value;
 	}
 
+	// Automatic migration: Fix double-encrypted API keys (one-time check).
+	if ( ! empty( $settings['api_key'] ) && ! get_option( 'enjinmel_smtp_double_encryption_fixed', false ) ) {
+		$fixed_settings = enjinmel_smtp_fix_double_encryption( $settings );
+		if ( $fixed_settings !== $settings ) {
+			enjinmel_smtp_update_settings( $fixed_settings );
+			$settings = $fixed_settings;
+		}
+		update_option( 'enjinmel_smtp_double_encryption_fixed', true, false );
+	}
+
 	return $settings;
 }
 
@@ -123,6 +133,49 @@ function enjinmel_smtp_get_settings( $default_value = array() ) {
  */
 function enjinmel_smtp_update_settings( array $settings ) {
 	update_option( enjinmel_smtp_option_key(), $settings );
+}
+
+/**
+ * Fix double-encrypted API key if detected.
+ *
+ * @param  array $settings Plugin settings.
+ * @return array Fixed settings.
+ */
+function enjinmel_smtp_fix_double_encryption( array $settings ) {
+	if ( empty( $settings['api_key'] ) ) {
+		return $settings;
+	}
+
+	// Attempt first decryption.
+	$decrypted_once = EnjinMel_SMTP_Encryption::decrypt( $settings['api_key'] );
+	
+	if ( is_wp_error( $decrypted_once ) ) {
+		// Cannot decrypt, leave as-is.
+		return $settings;
+	}
+
+	// Check if result still has encryption prefix (double-encrypted).
+	if ( strncmp( $decrypted_once, 'v2:', 3 ) === 0 ) {
+		// Attempt second decryption.
+		$decrypted_twice = EnjinMel_SMTP_Encryption::decrypt( $decrypted_once );
+		
+		if ( is_wp_error( $decrypted_twice ) ) {
+			// Cannot decrypt second layer, leave as-is.
+			return $settings;
+		}
+
+		// Check if we now have a clean key (no v2: prefix).
+		if ( strncmp( $decrypted_twice, 'v2:', 3 ) !== 0 ) {
+			// Success! Re-encrypt properly with single layer.
+			$properly_encrypted = EnjinMel_SMTP_Encryption::encrypt( $decrypted_twice );
+			
+			if ( ! is_wp_error( $properly_encrypted ) ) {
+				$settings['api_key'] = $properly_encrypted;
+			}
+		}
+	}
+
+	return $settings;
 }
 
 /**
@@ -316,6 +369,10 @@ function enjinmel_smtp_settings_sanitize( $input ) {
 		if ( strpos( $submitted_key, '*' ) !== false ) {
 			// Keep the existing encrypted key.
 			$output['api_key'] = isset( $existing['api_key'] ) ? $existing['api_key'] : '';
+		} elseif ( strncmp( $submitted_key, 'v2:', 3 ) === 0 ) {
+			// Already encrypted value submitted - keep it to prevent double-encryption.
+			// This can happen if the encrypted value is somehow submitted without masking.
+			$output['api_key'] = $submitted_key;
 		} else {
 			// New API key provided, encrypt it.
 			$encrypted = EnjinMel_SMTP_Encryption::encrypt( $submitted_key );

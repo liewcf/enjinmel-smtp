@@ -4,7 +4,7 @@ Tags: email, smtp, transactional email, wp_mail, email delivery
 Requires at least: 5.3
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -89,6 +89,17 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 2. Log viewer with filtering and export options
 
 == Changelog ==
+
+= 0.2.2 =
+* Fixed: CRITICAL - Double-encryption bug preventing API keys from working
+* Fixed: Automatic detection and repair of corrupted double-encrypted keys
+* Fixed: Added safeguard to prevent re-encryption of already encrypted values
+
+= 0.2.1 =
+* Fixed: CRITICAL - API V2 compatibility (removed unsupported fields causing 500 errors)
+* Fixed: Removed SubmittedContentType, IsHtmlContent, and ReplyToEmail fields not in V2 API
+* Fixed: Made SenderName optional (only sent when not empty)
+* Fixed: Added default values for empty subject and message fields
 
 = 0.2.0 =
 * **CRITICAL SECURITY:** Fixed per-message random IV encryption (replaced static IV)

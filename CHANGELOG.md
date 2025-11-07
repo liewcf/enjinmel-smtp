@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2025-11-07
+
+### Fixed
+- **CRITICAL:** Fixed double-encryption bug that could corrupt API keys when settings are saved multiple times
+- Added automatic detection and repair of double-encrypted API keys on plugin load
+- Added check to prevent re-encryption of already encrypted values (those starting with `v2:` prefix)
+
+### Changed
+- Enhanced settings sanitization to be more resilient against encryption issues
+
+## [0.2.1] - 2025-11-07
+
+### Fixed
+- **CRITICAL:** Fixed API compatibility with V2 endpoint - removed unsupported fields causing 500 errors
+  - Removed `SubmittedContentType` field (not supported in V2 API)
+  - Removed `IsHtmlContent` field (not supported in V2 API)
+  - Removed `ReplyToEmail` field (not documented in V2 API)
+- Made `SenderName` field optional in API payload (only sent when not empty)
+- Added default values for empty subject "(no subject)" and empty message " " to prevent API errors
+
 ## [0.2.0] - 2025-11-01
 
 ### Added
