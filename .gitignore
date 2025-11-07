@@ -65,8 +65,9 @@ build/
 *.bak
 *.backup
 
-# Packaging
+# Packaging (keep release zips in dist/)
 *.zip
+!dist/*.zip
 
 # Repo-local files to ignore
 memory/
@@ -75,10 +76,25 @@ CLAUDE.md
 *.local.md
 TODO.md
 
+# Temporary/internal documentation (keep essential docs only)
+IMPLEMENTATION-*.md
+PHASE*.md
+*-CHECKLIST-*.md
+UPDATE-ISSUE-*.md
+GITHUB-RELEASE-INSTRUCTIONS.md
+
 # Development and internal directories
 .claude/
 .gemini/
+.gemini_security/
+docs/internal/
 scripts/
 specs/
 templates/
 tests/
+
+# Debug/diagnostic files (should never be committed)
+diagnostic*.php
+debug*.php
+check-*.php
+fix-*.php
