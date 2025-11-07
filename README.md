@@ -3,9 +3,11 @@
 [![WordPress Compatibility](https://img.shields.io/badge/wordpress-5.3%2B-blue.svg)](https://wordpress.org/)
 [![PHP Version](https://img.shields.io/badge/php-7.4%2B-purple.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-GPLv2%2B-green.svg)](LICENSE.txt)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](#)
+[![Version](https://img.shields.io/badge/version-0.2.2-blue.svg)](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.2)
 
 Replace WordPress's default email sending with the Enginemailer REST API for improved deliverability and reliability.
+
+> **Latest Release (v0.2.2):** Critical bug fixes for double-encryption and API V2 compatibility. All users should upgrade immediately. [Release Notes](RELEASE-NOTES-v0.2.2.md) | [Download](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.2)
 
 > **Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer.
 
@@ -264,12 +266,20 @@ define('ENJINMEL_SMTP_PURGE_LOGS_ON_UNINSTALL', true);
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### Current Version: 0.1.0
+### Current Version: 0.2.2
 
-- Initial release with full Enginemailer REST API integration
-- Email logging and management
-- Admin log viewer with filtering and export
-- Security: encrypted storage, sanitization, escaping
+**Critical bug fixes and API V2 compliance**
+
+- **Fixed:** Double-encryption bug causing API key corruption (automatic repair included)
+- **Fixed:** API V2 compatibility - removed unsupported fields causing 500 errors
+- **Fixed:** Enhanced settings validation and error handling
+- **Added:** Automatic detection and repair of corrupted keys on plugin load
+- **Security:** Per-message random IV encryption (v0.2.0)
+- **Performance:** Composite database index for faster queries (v0.2.0)
+
+**Previous Releases:**
+- **v0.2.0** - Major security and performance update
+- **v0.1.0** - Initial release with Enginemailer REST API integration
 
 ## Support
 
