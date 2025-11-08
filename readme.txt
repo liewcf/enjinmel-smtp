@@ -1,5 +1,5 @@
 === EnjinMel SMTP ===
-Contributors: cheonfongliew
+Contributors: lcf
 Tags: email, smtp, transactional email, wp_mail, email delivery
 Requires at least: 5.3
 Tested up to: 6.8
@@ -126,6 +126,15 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 * Test email functionality
 
 == Upgrade Notice ==
+
+= 0.2.2 =
+CRITICAL UPDATE: Fixes double-encryption bug that prevented API keys from working. Includes automatic repair for affected installations. Update immediately if experiencing email delivery issues.
+
+= 0.2.1 =
+CRITICAL UPDATE: Fixes API V2 compatibility issues causing 500 errors. Updates immediately if you're unable to send emails after upgrading to 0.2.0.
+
+= 0.2.0 =
+CRITICAL SECURITY UPDATE: Fixes multiple security vulnerabilities including encryption weaknesses and SQL injection prevention. Adds performance improvements and new security features. Update immediately!
 
 = 0.1.0 =
 Initial release of EnjinMel SMTP plugin with full email delivery and logging features.

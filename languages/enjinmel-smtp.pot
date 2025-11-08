@@ -1,0 +1,382 @@
+# Copyright (C) 2025 Liew CheonFong
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: EnjinMel SMTP 0.2.2\n"
+"Report-Msgid-Bugs-To: https://github.com/liewcf/enjinmel-smtp/issues\n"
+"POT-Creation-Date: 2025-01-09 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Manual\n"
+"X-Domain: enjinmel-smtp\n"
+
+#: enjinmel-smtp.php:258
+msgid "EnjinMel API Configuration"
+msgstr ""
+
+#: enjinmel-smtp.php:271
+msgid "Configure the Enginemailer %s and defaults used for transactional email."
+msgstr ""
+
+#: enjinmel-smtp.php:272
+msgid "API Key"
+msgstr ""
+
+#: enjinmel-smtp.php:290
+msgid "Send Test Email"
+msgstr ""
+
+#: enjinmel-smtp.php:292
+msgid "Recipient"
+msgstr ""
+
+#: enjinmel-smtp.php:294
+msgid "Send Test"
+msgstr ""
+
+#: enjinmel-smtp.php:304
+msgid "Sending…"
+msgstr ""
+
+#: enjinmel-smtp.php:311
+msgid "Test email sent successfully."
+msgstr ""
+
+#: enjinmel-smtp.php:313
+msgid "Failed to send test email."
+msgstr ""
+
+#: enjinmel-smtp.php:317
+msgid "Request failed. Please try again."
+msgstr ""
+
+#: enjinmel-smtp.php:345
+msgid "The sender email address is invalid. Please enter a valid email address."
+msgstr ""
+
+#: enjinmel-smtp.php:516
+msgid "EnjinMel SMTP: add your API key in the settings page to enable transactional email sends."
+msgstr ""
+
+#: enjinmel-smtp.php:516
+msgid "Configure Now"
+msgstr ""
+
+#: enjinmel-smtp.php:522
+msgid "EnjinMel SMTP: "
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:80
+msgid "Unable to reach the EnjinMel API."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:96
+msgid "EnjinMel API returned HTTP %d."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:111
+msgid "Unexpected EnjinMel API response."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:122
+#: includes/class-enjinmel-smtp-logging.php:60
+msgid "Unknown error."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:140
+msgid "EnjinMel API key is not configured."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:149
+msgid "EnjinMel API key could not be decrypted."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:174
+msgid "Email recipient is required."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:218
+msgid "A valid sender email must be configured."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:294
+#: includes/class-enjinmel-smtp-api-client.php:322
+msgid "Attachment %s exceeds the 5MB EnjinMel API limit."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:313
+msgid "Attachment file not found."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-api-client.php:334
+msgid "Unable to read attachment."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:23
+msgid "Enginemailer API Key"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:31
+msgid "Sender Name"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:39
+msgid "Sender Email"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:47
+msgid "Template ID (optional)"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:55
+msgid "Campaign Name (optional)"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:63
+msgid "Force Sender"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:71
+msgid "Enable Logging"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:84
+msgid "Enter API key"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:108
+msgid "Show"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:119
+msgid "Hide"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:152
+msgid "Transactional Campaign"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:162
+msgid "e.g. TPL-123"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:172
+msgid "EnjinMel"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:195
+msgid "Always use the configured sender details"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:209
+msgid "Store send results in the EnjinMel log table"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:220
+#: includes/class-enjinmel-smtp-log-viewer.php:403
+#: includes/class-enjinmel-smtp-log-viewer.php:508
+msgid "Unauthorized."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:224
+msgid "Please provide a valid email address."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:227
+msgid "EnjinMel SMTP Test Email"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:228
+msgid "This is a test email sent from the EnjinMel SMTP plugin settings page."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:236
+msgid "Email sent successfully."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-settings-page.php:239
+msgid "EnjinMel API did not confirm the send."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:33
+#: includes/class-enjinmel-smtp-log-viewer.php:34
+#: includes/class-enjinmel-smtp-log-viewer.php:99
+msgid "Email Logs"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:73
+msgid "Are you sure you want to delete the selected logs?"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:74
+msgid "Are you sure you want to delete ALL logs matching the current filter?"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:75
+msgid "Are you sure you want to delete ALL email logs? This action cannot be undone!"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:76
+#: includes/class-enjinmel-smtp-log-viewer.php:423
+msgid "Logs deleted successfully."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:77
+msgid "Failed to delete logs."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:78
+msgid "All logs cleared successfully."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:79
+msgid "Failed to clear all logs."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:80
+msgid "Logs exported successfully."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:81
+msgid "Failed to export logs."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:82
+msgid "Please select at least one log to delete."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:93
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:106
+msgid "Bulk Actions"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:107
+msgid "Delete"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:109
+msgid "Apply"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:112
+msgid "Export to CSV"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:113
+msgid "Clear All Logs"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:149
+msgid "Search by email or subject..."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:152
+msgid "All Statuses"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:153
+#: includes/class-enjinmel-smtp-log-viewer.php:226
+msgid "Sent"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:154
+#: includes/class-enjinmel-smtp-log-viewer.php:228
+msgid "Failed"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:157
+msgid "From:"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:163
+msgid "To:"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:169
+msgid "Per page:"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:177
+msgid "Filter"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:178
+msgid "Reset"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:198
+#: includes/class-enjinmel-smtp-log-viewer.php:248
+msgid "Timestamp"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:199
+#: includes/class-enjinmel-smtp-log-viewer.php:249
+msgid "To"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:200
+#: includes/class-enjinmel-smtp-log-viewer.php:250
+msgid "Subject"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:201
+#: includes/class-enjinmel-smtp-log-viewer.php:251
+msgid "Status"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:202
+#: includes/class-enjinmel-smtp-log-viewer.php:252
+msgid "Error Message"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:208
+msgid "No logs found."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:288
+msgid "First page"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:292
+msgid "Previous page"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:301
+msgid "Current Page"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:303
+msgid "of"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:308
+msgid "Next page"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:312
+msgid "Last page"
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:409
+msgid "No logs selected."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:418
+msgid "Failed to delete logs."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:436
+msgid "Unauthorized."
+msgstr ""
+
+#: includes/class-enjinmel-smtp-log-viewer.php:523
+msgid "Failed to clear all logs."
+msgstr ""
