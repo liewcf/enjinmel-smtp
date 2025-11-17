@@ -4,7 +4,7 @@ Tags: email, smtp, transactional email, wp_mail, email delivery
 Requires at least: 5.3
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.2.2
+Stable tag: 0.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,6 +90,12 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 
 == Changelog ==
 
+= 0.2.3 =
+- Fix: Removes manual `load_plugin_textdomain()` so WordPress automatically loads translations for the plugin slug.
+- Fix: Flags `wp_mail_failed`, `wp_mail_succeeded`, and `wp_mail_content_type` hooks with PHPCS ignores while mirroring core behavior.
+- Fix: Prefixed uninstall globals before dropping log tables to satisfy NamingConventions checks.
+- Changed: Rebuilt `/dist/enjinmel-smtp` and generated `enjinmel-smtp-0.2.3.zip`, including the required `/languages` folder referenced by the Domain Path.
+
 = 0.2.2 =
 * Fixed: CRITICAL - Double-encryption bug preventing API keys from working
 * Fixed: Automatic detection and repair of corrupted double-encrypted keys
@@ -126,6 +132,9 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 * Test email functionality
 
 == Upgrade Notice ==
+
+= 0.2.3 =
+RECOMMENDED UPDATE: Addresses WordPress.org plugin check findings by removing the discouraged `load_plugin_textdomain()` call, properly prefixing uninstall globals, and regenerating the distributable bundle (new `enjinmel-smtp-0.2.3.zip`) including the `/languages` directory referenced by the Domain Path.
 
 = 0.2.2 =
 CRITICAL UPDATE: Fixes double-encryption bug that prevented API keys from working. Includes automatic repair for affected installations. Update immediately if experiencing email delivery issues.

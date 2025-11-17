@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2025-11-17
+
+### Fixed
+- **Compliance:** Removed the manual `load_plugin_textdomain()` call so WordPress automatically loads translations for the plugin slug.
+- **Hooks:** Added PHPCS ignores when mirroring `wp_mail_failed`, `wp_mail_succeeded`, and `wp_mail_content_type` while retaining compatibility with core.
+- **Uninstall:** Prefixed all uninstall globals before log table cleanup to satisfy NamingConventions checks.
+
+### Changed
+- Regenerated `/dist/enjinmel-smtp/` and bundled the new `enjinmel-smtp-0.2.3.zip`, ensuring `languages/` exists for the `/languages` domain path.
+
 ## [0.2.2] - 2025-11-07
 
 ### Fixed

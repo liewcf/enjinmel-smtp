@@ -15,6 +15,7 @@ The `internal/` directory contains development notes, implementation plans, and 
 For user-facing documentation, see:
 - **[README.md](../README.md)** - Main plugin documentation
 - **[CHANGELOG.md](../CHANGELOG.md)** - Version history and changes
-- **[RELEASE-NOTES-v0.2.2.md](../RELEASE-NOTES-v0.2.2.md)** - Latest release notes
+- **[RELEASE-NOTES-v0.2.3.md](../RELEASE-NOTES-v0.2.3.md)** - Latest release notes
+- **[RELEASE-NOTES-v0.2.2.md](../RELEASE-NOTES-v0.2.2.md)** - Previous release notes
 - **[RELEASE-NOTES-v0.2.1.md](../RELEASE-NOTES-v0.2.1.md)** - Previous release notes
 - **[RELEASE-NOTES-v0.2.0.md](../RELEASE-NOTES-v0.2.0.md)** - Previous release notes
