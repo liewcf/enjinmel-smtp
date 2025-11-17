@@ -23,18 +23,18 @@ if ( function_exists( 'wp_clear_scheduled_hook' ) ) {
 }
 
 // Decide whether to purge log tables on uninstall (opt-in).
-$purge = defined( 'ENJINMEL_SMTP_PURGE_LOGS_ON_UNINSTALL' ) && ENJINMEL_SMTP_PURGE_LOGS_ON_UNINSTALL;
+$enjinmel_smtp_purge = defined( 'ENJINMEL_SMTP_PURGE_LOGS_ON_UNINSTALL' ) && ENJINMEL_SMTP_PURGE_LOGS_ON_UNINSTALL;
 /**
  * Filter whether to purge log tables on uninstall.
  *
  * @param bool $purge Default purge decision derived from ENJINMEL_SMTP_PURGE_LOGS_ON_UNINSTALL.
  */
-$purge = apply_filters( 'enjinmel_smtp_purge_logs_on_uninstall', $purge );
+$enjinmel_smtp_purge = apply_filters( 'enjinmel_smtp_purge_logs_on_uninstall', $enjinmel_smtp_purge );
 
-if ( $purge ) {
+if ( $enjinmel_smtp_purge ) {
 	global $wpdb;
-	$table = $wpdb->prefix . 'enjinmel_smtp_logs';
-	$safe  = preg_replace( '/[^A-Za-z0-9_]/', '', (string) $table );
+	$enjinmel_smtp_table = $wpdb->prefix . 'enjinmel_smtp_logs';
+	$enjinmel_smtp_safe  = preg_replace( '/[^A-Za-z0-9_]/', '', (string) $enjinmel_smtp_table );
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Explicit uninstall-time cleanup on sanitized table names.
-	$wpdb->query( "DROP TABLE IF EXISTS {$safe}" );
+	$wpdb->query( "DROP TABLE IF EXISTS {$enjinmel_smtp_safe}" );
 }

@@ -176,7 +176,7 @@ class EnjinMel_SMTP_API_Client {
 
 		$headers = self::parse_headers( $args['headers'] );
 
-		$content_type = isset( $headers['content_type'] ) && '' !== $headers['content_type'] ? $headers['content_type'] : apply_filters( 'wp_mail_content_type', 'text/plain' );
+		$content_type = isset( $headers['content_type'] ) && '' !== $headers['content_type'] ? $headers['content_type'] : apply_filters( 'wp_mail_content_type', 'text/plain' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Use core filter to stay consistent with wp_mail.
 		$content_type = is_string( $content_type ) ? trim( strtolower( $content_type ) ) : 'text/plain';
 
 		$attachments = self::normalize_attachments( $args['attachments'] );

@@ -205,17 +205,6 @@ function enjinmel_sanitize_query_arg( $value ) {
 }
 
 /**
- * Load plugin translations.
- *
- * @return void
- */
-function enjinmel_smtp_load_textdomains() {
-	$locale_path = dirname( plugin_basename( __FILE__ ) ) . '/languages/';
-	load_plugin_textdomain( 'enjinmel-smtp', false, $locale_path );
-}
-add_action( 'plugins_loaded', 'enjinmel_smtp_load_textdomains', 0 );
-
-/**
  * Add the settings page to the admin menu.
  */
 function enjinmel_smtp_add_admin_menu() {
@@ -427,6 +416,7 @@ function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
 		/**
 		 * Mirror core behaviour for failed mail to keep downstream hooks consistent.
 		 */
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Mirror core hook to maintain wp_mail compatibility.
 		do_action( 'wp_mail_failed', $error );
 		return $error;
 	}
@@ -434,6 +424,7 @@ function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
 	/**
 	 * Mirror core behaviour for successful mail sends.
 	 */
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Mirror core hook to maintain wp_mail compatibility.
 	do_action(
 		'wp_mail_succeeded',
 		array(
