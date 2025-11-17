@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Packaging is now handled via `git archive --worktree-attributes` with `.gitattributes` export-ignore rules to strip tests, specs, docs, and other dev assets from release zips (no more committed `/dist` artifacts).
+
 ## [0.2.3] - 2025-11-17
 
 ### Fixed

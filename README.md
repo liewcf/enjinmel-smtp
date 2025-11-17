@@ -204,8 +204,9 @@ bash scripts/create-new-feature.sh "feature description"
 # Get active feature paths
 bash scripts/get-feature-paths.sh
 
-# Build distribution package
-bash scripts/build-dist.sh
+# Build a lean distribution zip (excludes tests/docs/dev files)
+mkdir -p dist
+git archive --format=zip --output dist/enjinmel-smtp.zip --worktree-attributes HEAD
 ```
 
 ### Code Standards
@@ -273,7 +274,7 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 - **Fixed:** Addressed WordPress.org plugin check warnings by flagging `wp_mail_failed`, `wp_mail_succeeded`, and `wp_mail_content_type` hooks with PHPCS ignores while preserving core behavior.
 - **Fixed:** Removed the manual `load_plugin_textdomain()` call so WordPress automatically loads translations (plugin slug handles the rest).
 - **Fixed:** Prefixed uninstall globals before dropping the log table to satisfy NamingConventions checks.
-- **Changed:** Rebuilt `/dist/enjinmel-smtp/` and repackaged the release (new `enjinmel-smtp-0.2.3.zip`) with the `languages/` folder required by the `/languages` domain path.
+- **Changed:** Rebuilt packaging with `.gitattributes` export-ignore rules to ship a lean zip (tests/docs/dev files omitted) while keeping the required `languages/` folder for the `/languages` domain path.
 
 **Previous Releases:**
 - **v0.2.2** - Critical bug fixes and API V2 compliance
