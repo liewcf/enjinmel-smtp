@@ -1,0 +1,13 @@
+# Exclude development, CI, and documentation files from git archive exports.
+/tests export-ignore
+/specs export-ignore
+/scripts export-ignore
+/docs export-ignore
+/.github export-ignore
+/phpunit.xml export-ignore
+/phpcs.xml.dist export-ignore
+/composer.json export-ignore
+/composer.lock export-ignore
+/RELEASE-NOTES-*.md export-ignore
+/WORDPRESS_ORG_SUBMISSION_CHECKLIST.md export-ignore
+/CHANGELOG.md export-ignore
