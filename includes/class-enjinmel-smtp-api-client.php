@@ -5,12 +5,17 @@
  * @package EnjinMel_SMTP
  */
 
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 /**
  * EnjinMel API client for transactional email submissions.
  */
-class EnjinMel_SMTP_API_Client {
+class EnjinMel_SMTP_API_Client
+{
 
-	private const ENDPOINT             = 'https://api.enginemailer.com/RESTAPI/V2/Submission/SendEmail';
+	private const ENDPOINT = 'https://api.enginemailer.com/RESTAPI/V2/Submission/SendEmail';
 	private const MAX_ATTACHMENT_BYTES = 5242880; // 5MB per current API limits.
 
 	/**
@@ -19,21 +24,22 @@ class EnjinMel_SMTP_API_Client {
 	 * @param array $args WP mail arguments.
 	 * @return array|WP_Error Response data array on success, WP_Error on failure.
 	 */
-	public static function send( array $args ) {
-		$settings = enjinmel_smtp_get_settings( array() );
+	public static function send(array $args)
+	{
+		$settings = enjinmel_smtp_get_settings(array());
 
-		$api_key = self::maybe_decrypt_api_key( $settings );
-		if ( is_wp_error( $api_key ) ) {
+		$api_key = self::maybe_decrypt_api_key($settings);
+		if (is_wp_error($api_key)) {
 			return $api_key;
 		}
 
-		$normalized = self::normalize_mail_args( $args );
-		if ( is_wp_error( $normalized ) ) {
+		$normalized = self::normalize_mail_args($args);
+		if (is_wp_error($normalized)) {
 			return $normalized;
 		}
 
-		$payload = self::build_payload( $normalized, $settings );
-		if ( is_wp_error( $payload ) ) {
+		$payload = self::build_payload($normalized, $settings);
+		if (is_wp_error($payload)) {
 			return $payload;
 		}
 
@@ -44,7 +50,7 @@ class EnjinMel_SMTP_API_Client {
 		 * @param array $normalized Normalized mail arguments.
 		 * @param array $settings  Plugin settings.
 		 */
-		$payload = apply_filters( 'enjinmel_smtp_payload', $payload, $normalized, $settings );
+		$payload = apply_filters('enjinmel_smtp_payload', $payload, $normalized, $settings);
 
 		/**
 		 * Fires immediately before the EnjinMel REST request is dispatched.
@@ -52,16 +58,16 @@ class EnjinMel_SMTP_API_Client {
 		 * @param array $normalized Normalized mail arguments.
 		 * @param array $payload    Request payload that will be submitted.
 		 */
-		do_action( 'enjinmel_smtp_before_send', $normalized, $payload );
+		do_action('enjinmel_smtp_before_send', $normalized, $payload);
 
-		$timeout = apply_filters( 'enjinmel_smtp_request_timeout', 15, $normalized, $payload, $settings );
+		$timeout = apply_filters('enjinmel_smtp_request_timeout', 15, $normalized, $payload, $settings);
 
 		$request_args = array(
 			'headers' => array(
 				'Content-Type' => 'application/json',
-				'APIKey'       => $api_key,
+				'APIKey' => $api_key,
 			),
-			'body'    => wp_json_encode( $payload ),
+			'body' => wp_json_encode($payload),
 			'timeout' => $timeout,
 		);
 
@@ -71,29 +77,29 @@ class EnjinMel_SMTP_API_Client {
 		 * @param array $request_args HTTP API arguments.
 		 * @param array $payload      EnjinMel payload.
 		 */
-		$request_args = apply_filters( 'enjinmel_smtp_request_args', $request_args, $payload, $normalized, $settings );
+		$request_args = apply_filters('enjinmel_smtp_request_args', $request_args, $payload, $normalized, $settings);
 
-		$response = wp_remote_post( self::ENDPOINT, $request_args );
-		if ( is_wp_error( $response ) ) {
+		$response = wp_remote_post(self::ENDPOINT, $request_args);
+		if (is_wp_error($response)) {
 			$result = new WP_Error(
 				'enjinmel_http_error',
-				__( 'Unable to reach the EnjinMel API.', 'enjinmel-smtp' ),
-				array( 'error' => $response )
+				__('Unable to reach the EnjinMel API.', 'enjinmel-smtp'),
+				array('error' => $response)
 			);
-			do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $result );
+			do_action('enjinmel_smtp_after_send', $normalized, $payload, $result);
 			return $result;
 		}
 
-		$code     = wp_remote_retrieve_response_code( $response );
-		$body_raw = wp_remote_retrieve_body( $response );
-		$body     = json_decode( $body_raw, true );
+		$code = wp_remote_retrieve_response_code($response);
+		$body_raw = wp_remote_retrieve_body($response);
+		$body = json_decode($body_raw, true);
 
-		if ( 200 !== (int) $code ) {
+		if (200 !== (int) $code) {
 			$result = new WP_Error(
 				'enjinmel_http_status',
 				sprintf(
 					/* translators: %d: HTTP status code */
-					__( 'EnjinMel API returned HTTP %d.', 'enjinmel-smtp' ),
+					__('EnjinMel API returned HTTP %d.', 'enjinmel-smtp'),
 					(int) $code
 				),
 				array(
@@ -101,31 +107,31 @@ class EnjinMel_SMTP_API_Client {
 					'body' => $body_raw,
 				)
 			);
-			do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $result );
+			do_action('enjinmel_smtp_after_send', $normalized, $payload, $result);
 			return $result;
 		}
 
-		if ( ! is_array( $body ) ) {
+		if (!is_array($body)) {
 			$result = new WP_Error(
 				'enjinmel_invalid_response',
-				__( 'Unexpected EnjinMel API response.', 'enjinmel-smtp' ),
-				array( 'body' => $body_raw )
+				__('Unexpected EnjinMel API response.', 'enjinmel-smtp'),
+				array('body' => $body_raw)
 			);
-			do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $result );
+			do_action('enjinmel_smtp_after_send', $normalized, $payload, $result);
 			return $result;
 		}
 
-		$result = isset( $body['Result'] ) ? $body['Result'] : $body;
-		$status = isset( $result['StatusCode'] ) ? (string) $result['StatusCode'] : '';
+		$result = isset($body['Result']) ? $body['Result'] : $body;
+		$status = isset($result['StatusCode']) ? (string) $result['StatusCode'] : '';
 
-		if ( '200' !== $status && 'OK' !== strtoupper( $status ) ) {
-			$message      = isset( $result['Message'] ) ? $result['Message'] : __( 'Unknown error.', 'enjinmel-smtp' );
-			$result_error = new WP_Error( 'enjinmel_api_error', $message, array( 'response' => $body ) );
-			do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $result_error );
+		if ('200' !== $status && 'OK' !== strtoupper($status)) {
+			$message = isset($result['Message']) ? $result['Message'] : __('Unknown error.', 'enjinmel-smtp');
+			$result_error = new WP_Error('enjinmel_api_error', $message, array('response' => $body));
+			do_action('enjinmel_smtp_after_send', $normalized, $payload, $result_error);
 			return $result_error;
 		}
 
-		do_action( 'enjinmel_smtp_after_send', $normalized, $payload, $body );
+		do_action('enjinmel_smtp_after_send', $normalized, $payload, $body);
 		return $body;
 	}
 
@@ -135,18 +141,19 @@ class EnjinMel_SMTP_API_Client {
 	 * @param array $settings Plugin settings array.
 	 * @return string|WP_Error
 	 */
-	private static function maybe_decrypt_api_key( array $settings ) {
-		if ( empty( $settings['api_key'] ) ) {
-			return new WP_Error( 'enjinmel_missing_api_key', __( 'EnjinMel API key is not configured.', 'enjinmel-smtp' ) );
+	private static function maybe_decrypt_api_key(array $settings)
+	{
+		if (empty($settings['api_key'])) {
+			return new WP_Error('enjinmel_missing_api_key', __('EnjinMel API key is not configured.', 'enjinmel-smtp'));
 		}
 
-		$decrypted = EnjinMel_SMTP_Encryption::decrypt( $settings['api_key'] );
-		if ( is_wp_error( $decrypted ) ) {
+		$decrypted = EnjinMel_SMTP_Encryption::decrypt($settings['api_key']);
+		if (is_wp_error($decrypted)) {
 			return $decrypted;
 		}
 
-		if ( empty( $decrypted ) ) {
-			return new WP_Error( 'enjinmel_invalid_api_key', __( 'EnjinMel API key could not be decrypted.', 'enjinmel-smtp' ) );
+		if (empty($decrypted)) {
+			return new WP_Error('enjinmel_invalid_api_key', __('EnjinMel API key could not be decrypted.', 'enjinmel-smtp'));
 		}
 
 		return (string) $decrypted;
@@ -158,39 +165,40 @@ class EnjinMel_SMTP_API_Client {
 	 * @param array $args Raw wp_mail arguments.
 	 * @return array|WP_Error Normalized args or error when validation fails.
 	 */
-	private static function normalize_mail_args( array $args ) {
+	private static function normalize_mail_args(array $args)
+	{
 		$defaults = array(
-			'to'          => array(),
-			'subject'     => '',
-			'message'     => '',
-			'headers'     => array(),
+			'to' => array(),
+			'subject' => '',
+			'message' => '',
+			'headers' => array(),
 			'attachments' => array(),
 		);
 
-		$args = wp_parse_args( $args, $defaults );
+		$args = wp_parse_args($args, $defaults);
 
-		$recipients = self::parse_addresses( $args['to'] );
-		if ( empty( $recipients ) ) {
-			return new WP_Error( 'enjinmel_missing_recipient', __( 'Email recipient is required.', 'enjinmel-smtp' ) );
+		$recipients = self::parse_addresses($args['to']);
+		if (empty($recipients)) {
+			return new WP_Error('enjinmel_missing_recipient', __('Email recipient is required.', 'enjinmel-smtp'));
 		}
 
-		$headers = self::parse_headers( $args['headers'] );
+		$headers = self::parse_headers($args['headers']);
 
-		$content_type = isset( $headers['content_type'] ) && '' !== $headers['content_type'] ? $headers['content_type'] : apply_filters( 'wp_mail_content_type', 'text/plain' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Use core filter to stay consistent with wp_mail.
-		$content_type = is_string( $content_type ) ? trim( strtolower( $content_type ) ) : 'text/plain';
+		$content_type = isset($headers['content_type']) && '' !== $headers['content_type'] ? $headers['content_type'] : apply_filters('wp_mail_content_type', 'text/plain'); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Use core filter to stay consistent with wp_mail.
+		$content_type = is_string($content_type) ? trim(strtolower($content_type)) : 'text/plain';
 
-		$attachments = self::normalize_attachments( $args['attachments'] );
-		if ( is_wp_error( $attachments ) ) {
+		$attachments = self::normalize_attachments($args['attachments']);
+		if (is_wp_error($attachments)) {
 			return $attachments;
 		}
 
 		return array(
-			'to'           => $recipients,
-			'subject'      => (string) $args['subject'],
-			'message'      => (string) $args['message'],
-			'headers'      => $headers,
+			'to' => $recipients,
+			'subject' => (string) $args['subject'],
+			'message' => (string) $args['message'],
+			'headers' => $headers,
 			'content_type' => $content_type,
-			'attachments'  => $attachments,
+			'attachments' => $attachments,
 		);
 	}
 
@@ -201,62 +209,63 @@ class EnjinMel_SMTP_API_Client {
 	 * @param array $settings   Plugin settings.
 	 * @return array|WP_Error
 	 */
-	private static function build_payload( array $normalized, array $settings ) {
-		$force_from       = ! empty( $settings['force_from'] );
-		$default_sender   = isset( $settings['from_email'] ) ? sanitize_email( $settings['from_email'] ) : '';
-		$default_name     = isset( $settings['from_name'] ) ? sanitize_text_field( $settings['from_name'] ) : '';
-		$default_campaign = isset( $settings['campaign_name'] ) ? sanitize_text_field( $settings['campaign_name'] ) : '';
-		$template_id      = isset( $settings['template_id'] ) ? sanitize_text_field( $settings['template_id'] ) : '';
+	private static function build_payload(array $normalized, array $settings)
+	{
+		$force_from = !empty($settings['force_from']);
+		$default_sender = isset($settings['from_email']) ? sanitize_email($settings['from_email']) : '';
+		$default_name = isset($settings['from_name']) ? sanitize_text_field($settings['from_name']) : '';
+		$default_campaign = isset($settings['campaign_name']) ? sanitize_text_field($settings['campaign_name']) : '';
+		$template_id = isset($settings['template_id']) ? sanitize_text_field($settings['template_id']) : '';
 
 		$from = $normalized['headers']['from'];
-		if ( $force_from || empty( $from['email'] ) ) {
+		if ($force_from || empty($from['email'])) {
 			$from['email'] = $default_sender;
-			$from['name']  = $default_name;
+			$from['name'] = $default_name;
 		}
 
-		if ( empty( $from['email'] ) || ! is_email( $from['email'] ) ) {
-			return new WP_Error( 'enjinmel_missing_sender', __( 'A valid sender email must be configured.', 'enjinmel-smtp' ) );
+		if (empty($from['email']) || !is_email($from['email'])) {
+			return new WP_Error('enjinmel_missing_sender', __('A valid sender email must be configured.', 'enjinmel-smtp'));
 		}
 
-		$to_emails = implode( ',', $normalized['to'] );
+		$to_emails = implode(',', $normalized['to']);
 
 		// Ensure required fields have default values if empty.
-		$subject = ! empty( $normalized['subject'] ) ? $normalized['subject'] : '(no subject)';
-		$message = ! empty( $normalized['message'] ) ? $normalized['message'] : ' ';
+		$subject = !empty($normalized['subject']) ? $normalized['subject'] : '(no subject)';
+		$message = !empty($normalized['message']) ? $normalized['message'] : ' ';
 
 		// Build payload according to V2 API specification.
 		// Note: V2 API does not support SubmittedContentType or IsHtmlContent fields.
 		// HTML content should be sent as-is in SubmittedContent field.
 		$payload = array(
-			'ToEmail'          => $to_emails,
-			'Subject'          => $subject,
-			'SenderEmail'      => $from['email'],
+			'ToEmail' => $to_emails,
+			'Subject' => $subject,
+			'SenderEmail' => $from['email'],
 			'SubmittedContent' => $message,
 		);
 
 		// Only include SenderName if not empty to avoid API null reference errors.
-		if ( ! empty( $from['name'] ) ) {
+		if (!empty($from['name'])) {
 			$payload['SenderName'] = $from['name'];
 		}
 
-		if ( ! empty( $default_campaign ) ) {
+		if (!empty($default_campaign)) {
 			$payload['CampaignName'] = $default_campaign;
 		}
 
-		if ( ! empty( $template_id ) ) {
+		if (!empty($template_id)) {
 			$payload['TemplateId'] = $template_id;
 		}
 
-		if ( ! empty( $normalized['attachments'] ) ) {
+		if (!empty($normalized['attachments'])) {
 			$payload['Attachments'] = $normalized['attachments'];
 		}
 
-		if ( ! empty( $normalized['headers']['cc'] ) ) {
-			$payload['CCEmails'] = array_values( $normalized['headers']['cc'] );
+		if (!empty($normalized['headers']['cc'])) {
+			$payload['CCEmails'] = array_values($normalized['headers']['cc']);
 		}
 
-		if ( ! empty( $normalized['headers']['bcc'] ) ) {
-			$payload['BCCEmails'] = array_values( $normalized['headers']['bcc'] );
+		if (!empty($normalized['headers']['bcc'])) {
+			$payload['BCCEmails'] = array_values($normalized['headers']['bcc']);
 		}
 
 		// Note: V2 API does not document a ReplyTo field.
@@ -271,28 +280,29 @@ class EnjinMel_SMTP_API_Client {
 	 * @param array $attachments List of attachment paths.
 	 * @return array|WP_Error
 	 */
-	private static function normalize_attachments( $attachments ) {
-		if ( empty( $attachments ) ) {
+	private static function normalize_attachments($attachments)
+	{
+		if (empty($attachments)) {
 			return array();
 		}
 
-		if ( ! is_array( $attachments ) ) {
-			$attachments = array( $attachments );
+		if (!is_array($attachments)) {
+			$attachments = array($attachments);
 		}
 
 		$normalized = array();
 
-		foreach ( $attachments as $attachment ) {
-			if ( is_array( $attachment ) && isset( $attachment['name'], $attachment['data'] ) ) {
-				$raw      = (string) $attachment['data'];
-				$raw_size = strlen( $raw );
-				if ( $raw_size > self::MAX_ATTACHMENT_BYTES ) {
+		foreach ($attachments as $attachment) {
+			if (is_array($attachment) && isset($attachment['name'], $attachment['data'])) {
+				$raw = (string) $attachment['data'];
+				$raw_size = strlen($raw);
+				if ($raw_size > self::MAX_ATTACHMENT_BYTES) {
 					return new WP_Error(
 						'enjinmel_attachment_too_large',
 						sprintf(
 							/* translators: %s: file name */
-							__( 'Attachment %s exceeds the 5MB EnjinMel API limit.', 'enjinmel-smtp' ),
-							sanitize_file_name( $attachment['name'] )
+							__('Attachment %s exceeds the 5MB EnjinMel API limit.', 'enjinmel-smtp'),
+							sanitize_file_name($attachment['name'])
 						),
 						array(
 							'file' => $attachment['name'],
@@ -301,26 +311,26 @@ class EnjinMel_SMTP_API_Client {
 					);
 				}
 
-					$normalized[] = array(
-						'Filename' => sanitize_file_name( $attachment['name'] ),
-						'Content'  => base64_encode( $raw ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- API payload requires Base64 encoded attachments.
-					);
-					continue;
+				$normalized[] = array(
+					'Filename' => sanitize_file_name($attachment['name']),
+					'Content' => base64_encode($raw), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- API payload requires Base64 encoded attachments.
+				);
+				continue;
 			}
 
-			$path = realpath( $attachment );
-			if ( false === $path || ! file_exists( $path ) ) {
-				return new WP_Error( 'enjinmel_missing_attachment', __( 'Attachment file not found.', 'enjinmel-smtp' ), array( 'file' => $attachment ) );
+			$path = realpath($attachment);
+			if (false === $path || !file_exists($path)) {
+				return new WP_Error('enjinmel_missing_attachment', __('Attachment file not found.', 'enjinmel-smtp'), array('file' => $attachment));
 			}
 
-			$size = filesize( $path );
-			if ( false !== $size && $size > self::MAX_ATTACHMENT_BYTES ) {
+			$size = filesize($path);
+			if (false !== $size && $size > self::MAX_ATTACHMENT_BYTES) {
 				return new WP_Error(
 					'enjinmel_attachment_too_large',
 					sprintf(
 						/* translators: %s: file name */
-						__( 'Attachment %s exceeds the 5MB EnjinMel API limit.', 'enjinmel-smtp' ),
-						wp_basename( $path )
+						__('Attachment %s exceeds the 5MB EnjinMel API limit.', 'enjinmel-smtp'),
+						wp_basename($path)
 					),
 					array(
 						'file' => $attachment,
@@ -329,15 +339,15 @@ class EnjinMel_SMTP_API_Client {
 				);
 			}
 
-				$contents = file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local attachment from disk.
-			if ( false === $contents ) {
-				return new WP_Error( 'enjinmel_unreadable_attachment', __( 'Unable to read attachment.', 'enjinmel-smtp' ), array( 'file' => $attachment ) );
+			$contents = file_get_contents($path); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local attachment from disk.
+			if (false === $contents) {
+				return new WP_Error('enjinmel_unreadable_attachment', __('Unable to read attachment.', 'enjinmel-smtp'), array('file' => $attachment));
 			}
 
-				$normalized[] = array(
-					'Filename' => sanitize_file_name( wp_basename( $path ) ),
-					'Content'  => base64_encode( $contents ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- API payload requires Base64 encoded attachments.
-				);
+			$normalized[] = array(
+				'Filename' => sanitize_file_name(wp_basename($path)),
+				'Content' => base64_encode($contents), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- API payload requires Base64 encoded attachments.
+			);
 		}
 
 		return $normalized;
@@ -349,24 +359,25 @@ class EnjinMel_SMTP_API_Client {
 	 * @param string|array $addresses Recipient or list of recipients.
 	 * @return array
 	 */
-	private static function parse_addresses( $addresses ) {
-		if ( empty( $addresses ) ) {
+	private static function parse_addresses($addresses)
+	{
+		if (empty($addresses)) {
 			return array();
 		}
 
-		if ( is_string( $addresses ) ) {
-			$addresses = wp_parse_list( $addresses );
+		if (is_string($addresses)) {
+			$addresses = wp_parse_list($addresses);
 		}
 
 		$emails = array();
-		foreach ( (array) $addresses as $address ) {
-			$parsed = self::parse_address( $address );
-			if ( $parsed && is_email( $parsed['email'] ) ) {
+		foreach ((array) $addresses as $address) {
+			$parsed = self::parse_address($address);
+			if ($parsed && is_email($parsed['email'])) {
 				$emails[] = $parsed['email'];
 			}
 		}
 
-		return array_unique( $emails );
+		return array_unique($emails);
 	}
 
 	/**
@@ -375,60 +386,61 @@ class EnjinMel_SMTP_API_Client {
 	 * @param string|array $headers Headers from wp_mail.
 	 * @return array
 	 */
-	private static function parse_headers( $headers ) {
+	private static function parse_headers($headers)
+	{
 		$normalized = array(
-			'from'         => array(
-				'name'  => '',
+			'from' => array(
+				'name' => '',
 				'email' => '',
 			),
-			'cc'           => array(),
-			'bcc'          => array(),
-			'reply_to'     => array(),
-			'other'        => array(),
+			'cc' => array(),
+			'bcc' => array(),
+			'reply_to' => array(),
+			'other' => array(),
 			'content_type' => '',
 		);
 
-		if ( empty( $headers ) ) {
+		if (empty($headers)) {
 			return $normalized;
 		}
 
-		if ( ! is_array( $headers ) ) {
-			$headers = explode( "\n", str_replace( "\r\n", "\n", (string) $headers ) );
+		if (!is_array($headers)) {
+			$headers = explode("\n", str_replace("\r\n", "\n", (string) $headers));
 		}
 
-		foreach ( $headers as $header ) {
-			if ( empty( $header ) || false === strpos( $header, ':' ) ) {
+		foreach ($headers as $header) {
+			if (empty($header) || false === strpos($header, ':')) {
 				continue;
 			}
 
-			list( $name, $content ) = explode( ':', trim( $header ), 2 );
-			$name                   = strtolower( trim( $name ) );
-			$content                = trim( $content );
+			list($name, $content) = explode(':', trim($header), 2);
+			$name = strtolower(trim($name));
+			$content = trim($content);
 
-			switch ( $name ) {
+			switch ($name) {
 				case 'from':
-					$normalized['from'] = self::parse_address( $content );
+					$normalized['from'] = self::parse_address($content);
 					break;
 				case 'cc':
-					$normalized['cc'] = array_merge( $normalized['cc'], self::parse_address_list( $content ) );
+					$normalized['cc'] = array_merge($normalized['cc'], self::parse_address_list($content));
 					break;
 				case 'bcc':
-					$normalized['bcc'] = array_merge( $normalized['bcc'], self::parse_address_list( $content ) );
+					$normalized['bcc'] = array_merge($normalized['bcc'], self::parse_address_list($content));
 					break;
 				case 'reply-to':
-					$normalized['reply_to'] = array_merge( $normalized['reply_to'], self::parse_address_list( $content ) );
+					$normalized['reply_to'] = array_merge($normalized['reply_to'], self::parse_address_list($content));
 					break;
 				case 'content-type':
-					$normalized['content_type'] = strtolower( $content );
+					$normalized['content_type'] = strtolower($content);
 					break;
 				default:
-					$normalized['other'][ $name ] = $content;
+					$normalized['other'][$name] = $content;
 					break;
 			}
 		}
 
-		$normalized['cc']  = array_unique( $normalized['cc'] );
-		$normalized['bcc'] = array_unique( $normalized['bcc'] );
+		$normalized['cc'] = array_unique($normalized['cc']);
+		$normalized['bcc'] = array_unique($normalized['bcc']);
 
 		return $normalized;
 	}
@@ -439,11 +451,12 @@ class EnjinMel_SMTP_API_Client {
 	 * @param string $header_list Header list value.
 	 * @return array
 	 */
-	private static function parse_address_list( $header_list ) {
+	private static function parse_address_list($header_list)
+	{
 		$emails = array();
-		foreach ( wp_parse_list( $header_list ) as $item ) {
-			$parsed = self::parse_address( $item );
-			if ( $parsed && is_email( $parsed['email'] ) ) {
+		foreach (wp_parse_list($header_list) as $item) {
+			$parsed = self::parse_address($item);
+			if ($parsed && is_email($parsed['email'])) {
 				$emails[] = $parsed['email'];
 			}
 		}
@@ -456,27 +469,28 @@ class EnjinMel_SMTP_API_Client {
 	 * @param string $address Raw address line.
 	 * @return array
 	 */
-	private static function parse_address( $address ) {
-		$address = trim( $address );
-		if ( empty( $address ) ) {
+	private static function parse_address($address)
+	{
+		$address = trim($address);
+		if (empty($address)) {
 			return array(
-				'name'  => '',
+				'name' => '',
 				'email' => '',
 			);
 		}
 
-		if ( preg_match( '/(.*)<(.+)>/', $address, $matches ) ) {
-			$name  = sanitize_text_field( trim( $matches[1], " \"'" ) );
-			$email = sanitize_email( trim( $matches[2] ) );
+		if (preg_match('/(.*)<(.+)>/', $address, $matches)) {
+			$name = sanitize_text_field(trim($matches[1], " \"'"));
+			$email = sanitize_email(trim($matches[2]));
 			return array(
-				'name'  => $name,
+				'name' => $name,
 				'email' => $email,
 			);
 		}
 
 		return array(
-			'name'  => '',
-			'email' => sanitize_email( $address ),
+			'name' => '',
+			'email' => sanitize_email($address),
 		);
 	}
 }
