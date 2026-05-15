@@ -15,3 +15,4 @@
 - Verification run: `./vendor/bin/phpunit`, filtered PHPUnit tests for both fixes, `./vendor/bin/phpcs`, PHP lint for changed PHP files, `composer audit --locked`, and `composer audit --locked --no-dev`.
 - Updated `CHANGELOG.md`, `README.md`, and `readme.txt` with unreleased security-fix notes.
 - Bumped release metadata and docs to `0.2.4` across plugin header, WordPress readme, README, changelog, POT header, docs index, and release notes.
+- Committed and pushed the `0.2.4` security release changes to `origin/main` as `8bcc31d` (`Release 0.2.4 security fixes`).

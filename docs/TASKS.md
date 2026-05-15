@@ -17,3 +17,4 @@
 - 2026-05-15: Project memory initialized and populated for future Codex sessions.
 - 2026-05-15: Fixed security scan findings for `pre_wp_mail` `WP_Error` preservation, CSV formula neutralization, safe test-email error rendering, and patched PHPUnit dev dependency.
 - 2026-05-15: Bumped release metadata and docs to `0.2.4`.
+- 2026-05-15: Committed and pushed `0.2.4` security release changes to `origin/main` as `8bcc31d`.
