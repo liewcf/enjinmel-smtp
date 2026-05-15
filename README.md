@@ -3,11 +3,11 @@
 [![WordPress Compatibility](https://img.shields.io/badge/wordpress-5.3%2B-blue.svg)](https://wordpress.org/)
 [![PHP Version](https://img.shields.io/badge/php-7.4%2B-purple.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-GPLv2%2B-green.svg)](LICENSE.txt)
-[![Version](https://img.shields.io/badge/version-0.2.3-blue.svg)](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.3)
+[![Version](https://img.shields.io/badge/version-0.2.4-blue.svg)](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.4)
 
 Replace WordPress's default email sending with the Enginemailer REST API for improved deliverability and reliability.
 
-> **Latest Release (v0.2.3):** Addresses plugin-check findings and packaging hygiene, ensuring WordPress.org compliance. [Release Notes](RELEASE-NOTES-v0.2.3.md) | [Download](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.3)
+> **Latest Release (v0.2.4):** Security maintenance release that preserves prior mail blockers, hardens CSV exports and test-email errors, and updates PHPUnit dev tooling. [Release Notes](RELEASE-NOTES-v0.2.4.md) | [Download](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.4)
 
 > **Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer.
 
@@ -227,6 +227,8 @@ git archive --format=zip --output dist/enjinmel-smtp.zip --worktree-attributes H
 - **Input Sanitization** - All user inputs sanitized before processing
 - **Output Escaping** - All outputs escaped to prevent XSS
 - **Prepared Statements** - All database queries use `$wpdb->prepare()`
+- **Mail Block Preservation** - Existing `pre_wp_mail` blockers, including `WP_Error`, are preserved
+- **CSV Export Hardening** - Log exports neutralize spreadsheet formula prefixes
 
 ### Reporting Security Issues
 
@@ -267,7 +269,17 @@ define('ENJINMEL_SMTP_PURGE_LOGS_ON_UNINSTALL', true);
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### Current Version: 0.2.3
+### Current Version: 0.2.4
+
+**Security fixes and hardening**
+
+- **Fixed:** Preserve prior non-null `pre_wp_mail` return values, including `WP_Error`, before sending through EnjinMel.
+- **Fixed:** Neutralize spreadsheet formula prefixes in exported email log CSV values.
+- **Hardened:** Insert dynamic Send Test Email failure messages as text instead of HTML.
+- **Changed:** Updated PHPUnit dev dependency to `12.5.25` to address CVE-2026-24765.
+- **Tests:** Added regression coverage for prior `WP_Error` preservation and CSV formula neutralization.
+
+### Previous Version: 0.2.3
 
 **Plugin-check & packaging hygiene**
 

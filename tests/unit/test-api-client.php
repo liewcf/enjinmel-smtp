@@ -153,4 +153,39 @@ class Test_API_Client extends WP_UnitTestCase {
 		$this->assertContains( 'enjinmel_rest_failure', $error_codes, 'Expected EnjinMel error code to be present.' );
 		$this->assertContains( 'enginemail_rest_failure', $error_codes, 'Expected legacy EngineMail error code to remain for compatibility.' );
 	}
+
+	/**
+	 * Ensure prior mail blockers are preserved.
+	 *
+	 * @return void
+	 */
+	public function test_pre_wp_mail_preserves_prior_wp_error() {
+		$http_called = false;
+		$prior_error = new WP_Error( 'blocked_by_policy', 'Security policy blocked this message.' );
+
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_called ) {
+				$http_called = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'Result' => array( 'StatusCode' => '200' ) ) ),
+				);
+			}
+		);
+
+		$result = enjinmel_smtp_pre_wp_mail(
+			$prior_error,
+			array(
+				'to'          => 'recipient@example.com',
+				'subject'     => 'Blocked Subject',
+				'message'     => 'Blocked message body.',
+				'headers'     => array(),
+				'attachments' => array(),
+			)
+		);
+
+		$this->assertSame( $prior_error, $result, 'Existing WP_Error blockers should be preserved.' );
+		$this->assertFalse( $http_called, 'No HTTP request should be dispatched after a prior WP_Error.' );
+	}
 }

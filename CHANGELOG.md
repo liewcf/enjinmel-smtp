@@ -7,8 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-05-15
+
+### Fixed
+- **Security:** Preserve any existing non-null `pre_wp_mail` return value, including `WP_Error`, so earlier mail-blocking/security filters are not bypassed before EnjinMel sends.
+- **Security:** Neutralize spreadsheet formula prefixes in exported email log CSV values.
+- **Security hardening:** Render dynamic test-email failure messages as text instead of HTML.
+- **Development:** Updated locked PHPUnit dev dependency to `12.5.25` to address CVE-2026-24765.
+
 ### Changed
 - Packaging is now handled via `git archive --worktree-attributes` with `.gitattributes` export-ignore rules to strip tests, specs, docs, and other dev assets from release zips (no more committed `/dist` artifacts).
+
+### Tests
+- Added regression coverage for preserving prior `WP_Error` mail blockers.
+- Added regression coverage for CSV formula neutralization.
 
 ## [0.2.3] - 2025-11-17
 
@@ -115,5 +127,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enginemailer API key
 - Encryption constants in wp-config.php (optional - auto-generated if not provided)
 
+[0.2.4]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.4
+[0.2.3]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.3
+[0.2.2]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.2
+[0.2.1]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.1
 [0.2.0]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.1.0

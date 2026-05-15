@@ -3,7 +3,7 @@
  * Plugin Name: EnjinMel SMTP
  * Plugin URI:  https://github.com/liewcf/enjinmel-smtp
  * Description: Replaces the default WordPress email sending functionality with Enginemailer API key for enhanced deliverability and reliability.
- * Version:     0.2.3
+ * Version:     0.2.4
  * Author:      Liew CheonFong
  * Author URI:  https://github.com/liewcf
  * License:     GPLv2 or later
@@ -300,7 +300,7 @@ function enjinmel_smtp_options_page() {
 					$('#enjinmel_smtp_test_result').html('<strong style="color: #46b450;"><?php echo esc_js( __( 'Test email sent successfully.', 'enjinmel-smtp' ) ); ?></strong>');
 				} else {
 					var msg = (resp && resp.data && resp.data.message) ? resp.data.message : '<?php echo esc_js( __( 'Failed to send test email.', 'enjinmel-smtp' ) ); ?>';
-					$('#enjinmel_smtp_test_result').html('<span style="color: #dc3232;">Error: ' + msg + '</span>');
+					$('#enjinmel_smtp_test_result').empty().append($('<span>').css('color', '#dc3232').text('Error: ' + msg));
 				}
 			}).fail(function(){
 				$('#enjinmel_smtp_test_result').html('<span style="color: #dc3232;"><?php echo esc_js( __( 'Request failed. Please try again.', 'enjinmel-smtp' ) ); ?></span>');
@@ -387,7 +387,7 @@ function enjinmel_smtp_settings_sanitize( $input ) {
  * @return bool|WP_Error
  */
 function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
-	if ( null !== $preemptive_return && ! ( $preemptive_return instanceof WP_Error ) ) {
+	if ( null !== $preemptive_return ) {
 		return $preemptive_return;
 	}
 

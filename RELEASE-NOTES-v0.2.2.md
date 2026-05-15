@@ -195,7 +195,7 @@ https://enginemailer.zendesk.com/hc/en-us/articles/23132996552473
 
 ## 🎯 What's Next?
 
-### Future Enhancements (v0.3.0+)
+### Future Enhancements
 - WP-CLI commands for email management
 - Dashboard widget with sending statistics
 - Bulk email testing tools

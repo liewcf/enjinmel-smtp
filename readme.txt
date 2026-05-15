@@ -4,7 +4,7 @@ Tags: email, smtp, transactional email, wp_mail, email delivery
 Requires at least: 5.3
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.2.3
+Stable tag: 0.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,6 +90,13 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 
 == Changelog ==
 
+= 0.2.4 =
+* Fixed: Security - Preserve prior non-null `pre_wp_mail` return values, including `WP_Error`, before sending through EnjinMel.
+* Fixed: Security - Neutralize spreadsheet formula prefixes in exported email log CSV values.
+* Hardened: Insert dynamic Send Test Email failure messages as text instead of HTML.
+* Changed: Updated PHPUnit dev dependency to `12.5.25` to address CVE-2026-24765.
+* Tests: Added regression coverage for prior `WP_Error` preservation and CSV formula neutralization.
+
 = 0.2.3 =
 - Fix: Removes manual `load_plugin_textdomain()` so WordPress automatically loads translations for the plugin slug.
 - Fix: Flags `wp_mail_failed`, `wp_mail_succeeded`, and `wp_mail_content_type` hooks with PHPCS ignores while mirroring core behavior.
@@ -133,6 +140,9 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 
 == Upgrade Notice ==
 
+= 0.2.4 =
+RECOMMENDED SECURITY UPDATE: Preserves prior mail-blocking filters before EnjinMel sends, neutralizes spreadsheet formula prefixes in CSV log exports, hardens Send Test Email error rendering, and updates PHPUnit dev tooling.
+
 = 0.2.3 =
 RECOMMENDED UPDATE: Addresses WordPress.org plugin check findings by removing the discouraged `load_plugin_textdomain()` call, properly prefixing uninstall globals, and regenerating the distributable bundle (new `enjinmel-smtp-0.2.3.zip`) including the `/languages` directory referenced by the Domain Path.
 
@@ -163,6 +173,8 @@ This plugin stores limited email metadata to aid troubleshooting and deliverabil
 * All admin actions use WordPress nonces
 * Input sanitization and output escaping throughout
 * Capability checks on all admin operations
+* Existing `pre_wp_mail` blockers are preserved before EnjinMel sends
+* CSV log exports neutralize spreadsheet formula prefixes
 
 **Developers:**
 * Follows WordPress Coding Standards

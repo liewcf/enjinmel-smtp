@@ -510,7 +510,7 @@ class EnjinMel_SMTP_Log_Viewer
 		if (!empty($logs)) {
 			fputcsv($output, array_keys($logs[0]));
 			foreach ($logs as $log) {
-				fputcsv($output, $log);
+				fputcsv($output, array_map(array(__CLASS__, 'neutralize_csv_formula_value'), $log));
 			}
 		}
 
@@ -545,6 +545,23 @@ class EnjinMel_SMTP_Log_Viewer
 		}
 
 		wp_send_json_success(array('message' => __('All logs cleared successfully.', 'enjinmel-smtp')));
+	}
+
+	/**
+	 * Neutralize values that spreadsheet software may treat as formulas.
+	 *
+	 * @param mixed $value Value to export.
+	 * @return string
+	 */
+	private static function neutralize_csv_formula_value($value)
+	{
+		$value = (string) $value;
+
+		if (preg_match('/^[=+\-@\t\r]/', $value)) {
+			return "'" . $value;
+		}
+
+		return $value;
 	}
 
 	/**

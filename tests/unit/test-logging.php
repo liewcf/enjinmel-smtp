@@ -165,6 +165,38 @@ class Test_Logging extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensure values exported to CSV cannot start spreadsheet formulas.
+	 *
+	 * @dataProvider csv_formula_values
+	 *
+	 * @param string $value    Raw exported value.
+	 * @param string $expected Expected CSV-safe value.
+	 * @return void
+	 */
+	public function test_csv_formula_values_are_neutralized( $value, $expected ) {
+		$method = new ReflectionMethod( EnjinMel_SMTP_Log_Viewer::class, 'neutralize_csv_formula_value' );
+
+		$this->assertSame( $expected, $method->invoke( null, $value ) );
+	}
+
+	/**
+	 * Provide formula-like CSV values.
+	 *
+	 * @return array
+	 */
+	public static function csv_formula_values() {
+		return array(
+			'equals formula'   => array( '=HYPERLINK("https://attacker.example","click")', '\'=HYPERLINK("https://attacker.example","click")' ),
+			'plus formula'     => array( '+SUM(1,1)', '\'+SUM(1,1)' ),
+			'minus formula'    => array( '-10+20', '\'-10+20' ),
+			'at formula'       => array( '@SUM(1,1)', '\'@SUM(1,1)' ),
+			'tab prefix'       => array( "\t=SUM(1,1)", "'\t=SUM(1,1)" ),
+			'carriage return'  => array( "\r=SUM(1,1)", "'\r=SUM(1,1)" ),
+			'plain text value' => array( 'Weekly report', 'Weekly report' ),
+		);
+	}
+
+	/**
 	 * Insert a row into the plugin log table for test setup.
 	 *
 	 * @param string $timestamp Datetime string representing when the email was logged.
