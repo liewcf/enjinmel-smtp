@@ -276,7 +276,7 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 - **Fixed:** Preserve prior non-null `pre_wp_mail` return values, including `WP_Error`, before sending through EnjinMel.
 - **Fixed:** Neutralize spreadsheet formula prefixes in exported email log CSV values.
 - **Hardened:** Insert dynamic Send Test Email failure messages as text instead of HTML.
-- **Changed:** Updated PHPUnit dev dependency to `12.5.25` to address CVE-2026-24765.
+- **Changed:** Verified compatibility with WordPress 7.0 and aligned the WordPress test stack with PHPUnit 9.6 / `wp-phpunit` 7.0.
 - **Tests:** Added regression coverage for prior `WP_Error` preservation and CSV formula neutralization.
 
 ### Previous Version: 0.2.3

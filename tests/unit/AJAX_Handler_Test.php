@@ -16,7 +16,7 @@ if ( ! defined( 'ENJINMEL_SMTP_IV' ) ) {
 /**
  * Test AJAX handler for sending test emails.
  */
-class Test_AJAX_Handler extends WP_UnitTestCase {
+class AJAX_Handler_Test extends WP_Ajax_UnitTestCase {
 
 	/**
 	 * Set up test user with admin capabilities.
@@ -38,13 +38,12 @@ class Test_AJAX_Handler extends WP_UnitTestCase {
 	public function test_send_test_email_requires_nonce() {
 		$_POST['to'] = 'test@example.com';
 
-		$this->expectException( 'WPAjaxDieContinueException' );
+		$this->expectException( 'WPAjaxDieStopException' );
 
 		try {
 			$this->_handleAjax( 'enjinmel_smtp_send_test_email' );
-		} catch ( WPAjaxDieContinueException $e ) {
-			$response = json_decode( $this->_last_response, true );
-			$this->assertEquals( -1, $response );
+		} catch ( WPAjaxDieStopException $e ) {
+			$this->assertEquals( '-1', $e->getMessage() );
 			throw $e;
 		}
 	}
@@ -181,16 +180,14 @@ class Test_AJAX_Handler extends WP_UnitTestCase {
 		$_POST['nonce'] = wp_create_nonce( 'enjinmel_smtp_send_test_email' );
 		$_POST['to']    = '<script>alert("xss")</script>valid@example.com';
 
-		add_filter( 'pre_wp_mail', function( $null, $args ) {
-			$this->assertEquals( 'valid@example.com', $args['to'] );
-			return true;
-		}, 10, 2 );
-
 		$this->expectException( 'WPAjaxDieContinueException' );
 
 		try {
 			$this->_handleAjax( 'enjinmel_smtp_send_test_email' );
 		} catch ( WPAjaxDieContinueException $e ) {
+			$response = json_decode( $this->_last_response, true );
+			$this->assertFalse( $response['success'] );
+			$this->assertStringContainsString( 'valid email', $response['data']['message'] );
 			throw $e;
 		}
 	}

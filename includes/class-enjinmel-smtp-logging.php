@@ -5,26 +5,25 @@
  * @package EnjinMel_SMTP
  */
 
-if (!defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Handles logging and retention for EnjinMel SMTP requests.
  */
-class EnjinMel_SMTP_Logging
-{
+class EnjinMel_SMTP_Logging {
+
 
 	private const CRON_HOOK = 'enjinmel_smtp_retention_daily';
 
 	/**
 	 * Initialize hooks.
 	 */
-	public static function init()
-	{
-		add_action('wp_mail_succeeded', array(__CLASS__, 'on_mail_succeeded'), 10, 1);
-		add_action('wp_mail_failed', array(__CLASS__, 'on_mail_failed'), 10, 1);
-		add_action(self::CRON_HOOK, array(__CLASS__, 'purge_logs'));
+	public static function init() {
+		add_action( 'wp_mail_succeeded', array( __CLASS__, 'on_mail_succeeded' ), 10, 1 );
+		add_action( 'wp_mail_failed', array( __CLASS__, 'on_mail_failed' ), 10, 1 );
+		add_action( self::CRON_HOOK, array( __CLASS__, 'purge_logs' ) );
 
 		self::schedule_events();
 	}
@@ -35,16 +34,15 @@ class EnjinMel_SMTP_Logging
 	 * @param array $mail_data { to, subject, message, headers, attachments }.
 	 * @return void
 	 */
-	public static function on_mail_succeeded($mail_data)
-	{
-		if (!self::is_enabled()) {
+	public static function on_mail_succeeded( $mail_data ) {
+		if ( ! self::is_enabled() ) {
 			return;
 		}
 
-		$to_emails = self::normalize_recipients(isset($mail_data['to']) ? $mail_data['to'] : '');
-		$subject = self::normalize_subject(isset($mail_data['subject']) ? $mail_data['subject'] : '');
+		$to_emails = self::normalize_recipients( isset( $mail_data['to'] ) ? $mail_data['to'] : '' );
+		$subject   = self::normalize_subject( isset( $mail_data['subject'] ) ? $mail_data['subject'] : '' );
 
-		self::insert_log('sent', $to_emails, $subject, '');
+		self::insert_log( 'sent', $to_emails, $subject, '' );
 	}
 
 	/**
@@ -53,22 +51,21 @@ class EnjinMel_SMTP_Logging
 	 * @param WP_Error $wp_error Error object from wp_mail.
 	 * @return void
 	 */
-	public static function on_mail_failed($wp_error)
-	{
-		if (!self::is_enabled()) {
+	public static function on_mail_failed( $wp_error ) {
+		if ( ! self::is_enabled() ) {
 			return;
 		}
 
-		$data = is_object($wp_error) ? $wp_error->get_error_data('wp_mail_failed') : array();
-		$to = isset($data['to']) ? $data['to'] : '';
-		$subject_v = isset($data['subject']) ? $data['subject'] : '';
-		$to_emails = self::normalize_recipients($to);
-		$subject = self::normalize_subject($subject_v);
+		$data      = is_object( $wp_error ) ? $wp_error->get_error_data( 'wp_mail_failed' ) : array();
+		$to        = isset( $data['to'] ) ? $data['to'] : '';
+		$subject_v = isset( $data['subject'] ) ? $data['subject'] : '';
+		$to_emails = self::normalize_recipients( $to );
+		$subject   = self::normalize_subject( $subject_v );
 
-		$message = is_object($wp_error) ? $wp_error->get_error_message() : __('Unknown error.', 'enjinmel-smtp');
-		$message = is_string($message) ? $message : ''; // Ensure string.
+		$message = is_object( $wp_error ) ? $wp_error->get_error_message() : __( 'Unknown error.', 'enjinmel-smtp' );
+		$message = is_string( $message ) ? $message : ''; // Ensure string.
 
-		self::insert_log('failed', $to_emails, $subject, $message);
+		self::insert_log( 'failed', $to_emails, $subject, $message );
 	}
 
 	/**
@@ -80,22 +77,24 @@ class EnjinMel_SMTP_Logging
 	 * @param string $error_message Error message if failed.
 	 * @return void
 	 */
-	private static function insert_log($status, $to_emails, $subject, $error_message)
-	{
+	private static function insert_log( $status, $to_emails, $subject, $error_message ) {
 		global $wpdb;
 
 		$table = enjinmel_smtp_active_log_table();
+		if ( ! enjinmel_smtp_table_exists( $table ) ) {
+			return;
+		}
 
 		// Ensure bounds for VARCHAR columns.
-		$to_emails = self::truncate($to_emails, 255);
-		$subject = self::truncate($subject, 255);
+		$to_emails     = self::truncate( $to_emails, 255 );
+		$subject       = self::truncate( $subject, 255 );
 		$error_message = (string) $error_message; // TEXT column expects string.
 
 		$entry = array(
-			'timestamp' => current_time('mysql'),
-			'to_email' => $to_emails,
-			'subject' => $subject,
-			'status' => ('failed' === $status) ? 'failed' : 'sent',
+			'timestamp'     => current_time( 'mysql' ),
+			'to_email'      => $to_emails,
+			'subject'       => $subject,
+			'status'        => ( 'failed' === $status ) ? 'failed' : 'sent',
 			'error_message' => $error_message,
 		);
 
@@ -108,18 +107,18 @@ class EnjinMel_SMTP_Logging
 		 * @param string $subject       Normalized subject line.
 		 * @param string $error_message Error message string (empty when not applicable).
 		 */
-		$entry = apply_filters('enjinmel_smtp_log_entry', $entry, $status, $to_emails, $subject, $error_message);
+		$entry = apply_filters( 'enjinmel_smtp_log_entry', $entry, $status, $to_emails, $subject, $error_message );
 
-		if (!is_array($entry)) {
+		if ( ! is_array( $entry ) ) {
 			return;
 		}
 
-		$entry = self::normalize_log_entry($entry);
+		$entry = self::normalize_log_entry( $entry );
 
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Logging writes are intentionally uncached.
 			$table,
 			$entry,
-			array('%s', '%s', '%s', '%s', '%s')
+			array( '%s', '%s', '%s', '%s', '%s' )
 		);
 	}
 
@@ -128,14 +127,13 @@ class EnjinMel_SMTP_Logging
 	 *
 	 * @return bool
 	 */
-	private static function is_enabled()
-	{
-		$opts = enjinmel_smtp_get_settings(array());
-		if (!is_array($opts)) {
+	private static function is_enabled() {
+		$opts = enjinmel_smtp_get_settings( array() );
+		if ( ! is_array( $opts ) ) {
 			return true;
 		}
 		// Default to enabled when option is absent.
-		return array_key_exists('enable_logging', $opts) ? (bool) $opts['enable_logging'] : true;
+		return array_key_exists( 'enable_logging', $opts ) ? (bool) $opts['enable_logging'] : true;
 	}
 
 	/**
@@ -144,30 +142,29 @@ class EnjinMel_SMTP_Logging
 	 * @param string|array $to Recipients.
 	 * @return string
 	 */
-	private static function normalize_recipients($to)
-	{
+	private static function normalize_recipients( $to ) {
 		$emails = array();
-		if (is_array($to)) {
-			foreach ($to as $addr) {
-				$e = sanitize_email($addr);
-				if (is_email($e)) {
+		if ( is_array( $to ) ) {
+			foreach ( $to as $addr ) {
+				$e = sanitize_email( $addr );
+				if ( is_email( $e ) ) {
 					$emails[] = $e;
 				}
 			}
 		} else {
 			// Split on commas if a string list is provided.
-			$parts = array_map('trim', explode(',', (string) $to));
-			foreach ($parts as $addr) {
-				if ('' === $addr) {
+			$parts = array_map( 'trim', explode( ',', (string) $to ) );
+			foreach ( $parts as $addr ) {
+				if ( '' === $addr ) {
 					continue;
 				}
-				$e = sanitize_email($addr);
-				if (is_email($e)) {
+				$e = sanitize_email( $addr );
+				if ( is_email( $e ) ) {
 					$emails[] = $e;
 				}
 			}
 		}
-		return implode(',', $emails);
+		return implode( ',', $emails );
 	}
 
 	/**
@@ -176,10 +173,9 @@ class EnjinMel_SMTP_Logging
 	 * @param string $subject Subject.
 	 * @return string
 	 */
-	private static function normalize_subject($subject)
-	{
-		$subject = sanitize_text_field((string) $subject);
-		return self::truncate($subject, 255);
+	private static function normalize_subject( $subject ) {
+		$subject = sanitize_text_field( (string) $subject );
+		return self::truncate( $subject, 255 );
 	}
 
 	/**
@@ -189,13 +185,12 @@ class EnjinMel_SMTP_Logging
 	 * @param int    $limit Max length.
 	 * @return string
 	 */
-	private static function truncate($text, $limit)
-	{
+	private static function truncate( $text, $limit ) {
 		$text = (string) $text;
-		if (function_exists('mb_substr')) {
-			return mb_substr($text, 0, (int) $limit);
+		if ( function_exists( 'mb_substr' ) ) {
+			return mb_substr( $text, 0, (int) $limit );
 		}
-		return substr($text, 0, (int) $limit);
+		return substr( $text, 0, (int) $limit );
 	}
 
 	/**
@@ -204,22 +199,21 @@ class EnjinMel_SMTP_Logging
 	 * @param array $entry Log entry.
 	 * @return array
 	 */
-	private static function normalize_log_entry(array $entry)
-	{
-		$entry['timestamp'] = isset($entry['timestamp']) ? $entry['timestamp'] : current_time('mysql');
-		$entry['to_email'] = isset($entry['to_email']) ? self::truncate((string) $entry['to_email'], 255) : '';
-		$entry['subject'] = isset($entry['subject']) ? self::truncate(sanitize_text_field((string) $entry['subject']), 255) : '';
+	private static function normalize_log_entry( array $entry ) {
+		$entry['timestamp'] = isset( $entry['timestamp'] ) ? $entry['timestamp'] : current_time( 'mysql' );
+		$entry['to_email']  = isset( $entry['to_email'] ) ? self::truncate( (string) $entry['to_email'], 255 ) : '';
+		$entry['subject']   = isset( $entry['subject'] ) ? self::truncate( sanitize_text_field( (string) $entry['subject'] ), 255 ) : '';
 
-		$status = isset($entry['status']) ? strtolower((string) $entry['status']) : 'sent';
-		$entry['status'] = ('failed' === $status) ? 'failed' : 'sent';
+		$status          = isset( $entry['status'] ) ? strtolower( (string) $entry['status'] ) : 'sent';
+		$entry['status'] = ( 'failed' === $status ) ? 'failed' : 'sent';
 
-		$entry['error_message'] = isset($entry['error_message']) ? (string) $entry['error_message'] : '';
+		$entry['error_message'] = isset( $entry['error_message'] ) ? (string) $entry['error_message'] : '';
 
 		return array(
-			'timestamp' => $entry['timestamp'],
-			'to_email' => $entry['to_email'],
-			'subject' => $entry['subject'],
-			'status' => $entry['status'],
+			'timestamp'     => $entry['timestamp'],
+			'to_email'      => $entry['to_email'],
+			'subject'       => $entry['subject'],
+			'status'        => $entry['status'],
 			'error_message' => $entry['error_message'],
 		);
 	}
@@ -229,14 +223,13 @@ class EnjinMel_SMTP_Logging
 	 *
 	 * @return void
 	 */
-	private static function schedule_purge_event()
-	{
-		if (!function_exists('wp_next_scheduled') || !function_exists('wp_schedule_event')) {
+	private static function schedule_purge_event() {
+		if ( ! function_exists( 'wp_next_scheduled' ) || ! function_exists( 'wp_schedule_event' ) ) {
 			return;
 		}
 
-		if (!wp_next_scheduled(self::CRON_HOOK)) {
-			wp_schedule_event(time(), 'daily', self::CRON_HOOK);
+		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
+			wp_schedule_event( time(), 'daily', self::CRON_HOOK );
 		}
 	}
 
@@ -245,8 +238,7 @@ class EnjinMel_SMTP_Logging
 	 *
 	 * @return void
 	 */
-	public static function schedule_events()
-	{
+	public static function schedule_events() {
 		self::unschedule_events();
 		self::schedule_purge_event();
 	}
@@ -256,10 +248,9 @@ class EnjinMel_SMTP_Logging
 	 *
 	 * @return void
 	 */
-	public static function unschedule_events()
-	{
-		if (function_exists('wp_clear_scheduled_hook')) {
-			wp_clear_scheduled_hook(self::CRON_HOOK);
+	public static function unschedule_events() {
+		if ( function_exists( 'wp_clear_scheduled_hook' ) ) {
+			wp_clear_scheduled_hook( self::CRON_HOOK );
 		}
 	}
 
@@ -268,22 +259,21 @@ class EnjinMel_SMTP_Logging
 	 *
 	 * @return void
 	 */
-	public static function purge_logs()
-	{
+	public static function purge_logs() {
 		$tables = array(
 			enjinmel_smtp_log_table_name(),
 		);
 
 		$tables = array_filter(
-			array_map('enjinmel_smtp_sanitize_table_name', $tables)
+			array_map( 'enjinmel_smtp_sanitize_table_name', $tables )
 		);
 
-		$days = (int) apply_filters('enjinmel_smtp_retention_days', 90);
+		$days = (int) apply_filters( 'enjinmel_smtp_retention_days', 90 );
 
-		$max_rows = (int) apply_filters('enjinmel_smtp_retention_max_rows', 10000);
+		$max_rows = (int) apply_filters( 'enjinmel_smtp_retention_max_rows', 10000 );
 
-		foreach ($tables as $table) {
-			self::purge_table($table, $days, $max_rows);
+		foreach ( $tables as $table ) {
+			self::purge_table( $table, $days, $max_rows );
 		}
 	}
 
@@ -295,34 +285,33 @@ class EnjinMel_SMTP_Logging
 	 * @param int    $max_rows Maximum number of rows to keep.
 	 * @return void
 	 */
-	private static function purge_table($table, $days, $max_rows)
-	{
+	private static function purge_table( $table, $days, $max_rows ) {
 		global $wpdb;
 
-		if (!enjinmel_smtp_table_exists($table)) {
+		if ( ! enjinmel_smtp_table_exists( $table ) ) {
 			return;
 		}
 
-		if ($days > 0) {
+		if ( $days > 0 ) {
 			$clock = current_datetime();
-			if ($clock instanceof \DateTimeInterface) {
-				$threshold_obj = $clock->modify(sprintf('-%d days', $days));
-				if (false !== $threshold_obj) {
-					$threshold = $threshold_obj->format('Y-m-d H:i:s');
-					$wpdb->query($wpdb->prepare("DELETE FROM {$table} WHERE timestamp < %s", $threshold)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
+			if ( $clock instanceof \DateTimeInterface ) {
+				$threshold_obj = $clock->modify( sprintf( '-%d days', $days ) );
+				if ( false !== $threshold_obj ) {
+					$threshold = $threshold_obj->format( 'Y-m-d H:i:s' );
+					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE timestamp < %s", $threshold ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
 				}
 			}
 		}
 
-		if ($max_rows > 0) {
-			$count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table}"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
-			if ($count > $max_rows) {
+		if ( $max_rows > 0 ) {
+			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
+			if ( $count > $max_rows ) {
 				$over_limit = $count - $max_rows;
-				$ids = $wpdb->get_col($wpdb->prepare("SELECT id FROM {$table} ORDER BY timestamp ASC LIMIT %d", $over_limit)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
-				if (!empty($ids)) {
-					$ids = array_map('intval', $ids);
-					$placeholders = implode(',', array_fill(0, count($ids), '%d'));
-					$wpdb->query($wpdb->prepare("DELETE FROM {$table} WHERE id IN ({$placeholders})", $ids)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table name sanitized prior to interpolation; placeholders generated explicitly for ids.
+				$ids        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} ORDER BY timestamp ASC LIMIT %d", $over_limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
+				if ( ! empty( $ids ) ) {
+					$ids          = array_map( 'intval', $ids );
+					$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN ({$placeholders})", $ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table name sanitized prior to interpolation; placeholders generated explicitly for ids.
 				}
 			}
 		}

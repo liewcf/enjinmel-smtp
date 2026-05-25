@@ -2,7 +2,7 @@
 Contributors: lcf
 Tags: email, smtp, transactional email, wp_mail, email delivery
 Requires at least: 5.3
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 0.2.4
 License: GPLv2 or later
@@ -89,6 +89,10 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 2. Log viewer with filtering and export options
 
 == Changelog ==
+
+= Unreleased =
+* Changed: Verified compatibility with WordPress 7.0 and updated `Tested up to`.
+* Changed: Aligned the WordPress test stack with WordPress 7.0 using PHPUnit 9.6, `wp-phpunit` 7.0, and PHPUnit Polyfills 4.0.
 
 = 0.2.4 =
 * Fixed: Security - Preserve prior non-null `pre_wp_mail` return values, including `WP_Error`, before sending through EnjinMel.

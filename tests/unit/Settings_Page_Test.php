@@ -16,7 +16,7 @@ if ( ! defined( 'ENJINMEL_SMTP_IV' ) ) {
 /**
  * Test settings sanitization and encryption functionality.
  */
-class Test_Settings_Page extends WP_UnitTestCase {
+class Settings_Page_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that enjinmel_smtp_settings_sanitize properly sanitizes all fields.

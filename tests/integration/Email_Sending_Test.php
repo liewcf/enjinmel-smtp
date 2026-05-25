@@ -20,7 +20,7 @@ if ( ! function_exists( 'enjinmel_smtp_pre_wp_mail' ) ) {
 /**
  * Exercises the full email-sending path through wp_mail().
  */
-class Test_Email_Sending extends WP_UnitTestCase {
+class Email_Sending_Test extends WP_UnitTestCase {
 
 	/**
 	 * Configure plugin options before each integration scenario.
@@ -121,11 +121,12 @@ class Test_Email_Sending extends WP_UnitTestCase {
 		$this->assertSame( 'Integration Subject', $payload['Subject'] );
 		$this->assertSame( 'sender@example.com', $payload['SenderEmail'] );
 		$this->assertSame( 'Custom Sender', $payload['SenderName'] );
-		$this->assertSame( 'text/html; charset=utf-8', $payload['SubmittedContentType'] );
-		$this->assertTrue( $payload['IsHtmlContent'] );
+		$this->assertSame( '<p>HTML body</p>', $payload['SubmittedContent'] );
+		$this->assertArrayNotHasKey( 'SubmittedContentType', $payload );
+		$this->assertArrayNotHasKey( 'IsHtmlContent', $payload );
 		$this->assertSame( array( 'copy@example.com' ), $payload['CCEmails'] );
 		$this->assertSame( array( 'hidden@example.com' ), $payload['BCCEmails'] );
 		$this->assertSame( 'WordPress Integration', $payload['CampaignName'] );
-		$this->assertSame( 'helpdesk@example.com', $payload['ReplyToEmail'] );
+		$this->assertArrayNotHasKey( 'ReplyToEmail', $payload );
 	}
 }

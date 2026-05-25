@@ -4,7 +4,7 @@
 
 - Project purpose: WordPress plugin that intercepts `wp_mail()` and sends mail through the Enginemailer REST API for EnjinMel SMTP.
 - Primary users: WordPress site owners/admins who need transactional email delivery via Enginemailer; future maintainers preparing WordPress.org-compatible releases.
-- Current status: Version `0.2.4` in plugin headers, readme metadata, changelog, and release notes for the security maintenance release. Commit `8bcc31d` is pushed to `origin/main`; dist packaging still needs rebuilding before publishing release assets.
+- Current status: Version `0.2.4` in plugin headers, changelog, and release notes for the security maintenance release. WordPress compatibility metadata is verified up to `7.0`; dist packaging still needs rebuilding before publishing release assets.
 
 ## Architecture
 
@@ -25,7 +25,7 @@
 - Install dependencies: `composer install`.
 - Coding standards: `./vendor/bin/phpcs` using `phpcs.xml.dist` with WordPress Coding Standards.
 - Auto-fix standards: `./vendor/bin/phpcbf`.
-- Tests: `./vendor/bin/phpunit`, with unit and integration suites defined in `phpunit.xml`.
+- Tests: `./vendor/bin/phpunit`, with unit and integration suites defined in `phpunit.xml`. WordPress 7.0 testing uses `wp-phpunit` `^7.0`, PHPUnit `^9.6`, and PHPUnit Polyfills `^4.0`.
 - WordPress test library: `tests/bootstrap.php` reads `WP_TESTS_DIR`, falling back to `/tmp/wordpress-tests-lib` on macOS.
 - Optional local WP environment: README documents `npx wp-env start` and `npx wp-env run tests-cli phpunit`.
 - Distribution ZIP: `mkdir -p dist` then `git archive --format=zip --output dist/enjinmel-smtp.zip --worktree-attributes HEAD`.
@@ -34,7 +34,7 @@
 ## Constraints
 
 - Target PHP compatibility is 7.4+; avoid newer PHP syntax.
-- WordPress compatibility is declared as Requires at least 5.3 and Tested up to 6.8 in the plugin header.
+- WordPress compatibility is declared as Requires at least 5.3 and Tested up to 7.0 in the plugin header and WordPress readme.
 - Follow WordPress Coding Standards and the security guidance in `AGENTS.md`.
 - Use WordPress APIs for HTTP, options, sanitization, escaping, admin actions, and database access where applicable.
 - Do not store secrets, API keys, credentials, database dumps, or sensitive personal data in project memory.

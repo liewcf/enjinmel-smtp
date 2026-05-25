@@ -92,7 +92,6 @@ docs/internal/
 scripts/
 specs/
 templates/
-tests/
 
 # Debug/diagnostic files (should never be committed)
 diagnostic*.php

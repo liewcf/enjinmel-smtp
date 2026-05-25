@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Restored legacy EngineMail compatibility helpers for settings, log migration, cron cleanup, and mail failure metadata while keeping current EnjinMel behavior.
+- Hardened Send Test Email recipient validation to reject tampered input instead of sanitizing it into a different address.
+- Made log-table detection work for both persistent WordPress tables and temporary tables created by the WordPress PHPUnit test suite.
+
+### Changed
+- Verified compatibility with WordPress 7.0 and updated `Tested up to` metadata.
+- Aligned the WordPress test stack with WordPress 7.0: `wp-phpunit` `^7.0`, PHPUnit `^9.6`, and `yoast/phpunit-polyfills` `^4.0`.
+- Renamed PHPUnit test files/classes to PHPUnit-compatible `*_Test.php` / `*_Test` naming.
+- Removed the plugin bootstrap from Composer `autoload.files` so Composer dev tools run outside WordPress.
+
 ## [0.2.4] - 2026-05-15
 
 ### Fixed

@@ -19,7 +19,7 @@ require_once __DIR__ . '/../../includes/class-enjinmel-smtp-encryption.php';
 /**
  * Confirms that encryption helpers perform a lossless round trip.
  */
-class Test_Encryption extends WP_UnitTestCase {
+class Encryption_Test extends WP_UnitTestCase {
 
 	/**
 	 * Ensure encrypt/decrypt returns the original plaintext.

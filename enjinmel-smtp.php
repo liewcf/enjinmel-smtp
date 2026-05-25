@@ -12,7 +12,7 @@
  * Domain Path: /languages
  * Requires at least: 5.3
  * Requires PHP: 7.4
- * Tested up to: 6.8
+ * Tested up to: 7.0
  *
  * @package EnjinMel_SMTP
  */
@@ -56,6 +56,15 @@ function enjinmel_smtp_cron_hook() {
 }
 
 /**
+ * Return the legacy EngineMail cron hook name.
+ *
+ * @return string
+ */
+function enjinmel_smtp_legacy_cron_hook() {
+	return 'enginemail_smtp_retention_daily';
+}
+
+/**
  * Return the log table name for the plugin.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
@@ -64,6 +73,17 @@ function enjinmel_smtp_cron_hook() {
 function enjinmel_smtp_log_table_name() {
 	global $wpdb;
 	return $wpdb->prefix . 'enjinmel_smtp_logs';
+}
+
+/**
+ * Return the legacy EngineMail log table name.
+ *
+ * @global wpdb $wpdb WordPress database abstraction object.
+ * @return string
+ */
+function enjinmel_smtp_legacy_log_table_name() {
+	global $wpdb;
+	return $wpdb->prefix . 'enginemail_smtp_logs';
 }
 
 
@@ -77,7 +97,25 @@ function enjinmel_smtp_log_table_name() {
  */
 function enjinmel_smtp_table_exists( $table ) {
 	global $wpdb;
-	return ( $table === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Single table existence check executed during administrative flows.
+
+	$safe_table = enjinmel_smtp_sanitize_table_name( $table );
+	if ( $safe_table !== $table ) {
+		return false;
+	}
+
+	$like = $wpdb->esc_like( $table );
+	if ( $table === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $like ) ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Single table existence check executed during administrative flows.
+		return true;
+	}
+
+	$last_error        = $wpdb->last_error;
+	$previous_suppress = $wpdb->suppress_errors( true );
+	$result            = $wpdb->query( "SELECT 1 FROM `{$safe_table}` LIMIT 0" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Safe table name is sanitized above; probe detects temporary tables.
+	$probe_error       = $wpdb->last_error;
+	$wpdb->suppress_errors( $previous_suppress );
+	$wpdb->last_error = $last_error;
+
+	return false !== $result && '' === $probe_error;
 }
 
 /**
@@ -106,7 +144,17 @@ function enjinmel_smtp_sanitize_table_name( $table ) {
  * @return array
  */
 function enjinmel_smtp_get_settings( $default_value = array() ) {
-	$settings = get_option( enjinmel_smtp_option_key(), $default_value );
+	$settings = get_option( enjinmel_smtp_option_key(), null );
+
+	if ( ! is_array( $settings ) ) {
+		$legacy_settings = get_option( 'enginemail_smtp_settings', null );
+		if ( is_array( $legacy_settings ) ) {
+			enjinmel_smtp_update_settings( $legacy_settings );
+			$settings = $legacy_settings;
+		} else {
+			return $default_value;
+		}
+	}
 
 	if ( ! is_array( $settings ) ) {
 		return $default_value;
@@ -148,7 +196,7 @@ function enjinmel_smtp_fix_double_encryption( array $settings ) {
 
 	// Attempt first decryption.
 	$decrypted_once = EnjinMel_SMTP_Encryption::decrypt( $settings['api_key'] );
-	
+
 	if ( is_wp_error( $decrypted_once ) ) {
 		// Cannot decrypt, leave as-is.
 		return $settings;
@@ -158,7 +206,7 @@ function enjinmel_smtp_fix_double_encryption( array $settings ) {
 	if ( strncmp( $decrypted_once, 'v2:', 3 ) === 0 ) {
 		// Attempt second decryption.
 		$decrypted_twice = EnjinMel_SMTP_Encryption::decrypt( $decrypted_once );
-		
+
 		if ( is_wp_error( $decrypted_twice ) ) {
 			// Cannot decrypt second layer, leave as-is.
 			return $settings;
@@ -168,7 +216,7 @@ function enjinmel_smtp_fix_double_encryption( array $settings ) {
 		if ( strncmp( $decrypted_twice, 'v2:', 3 ) !== 0 ) {
 			// Success! Re-encrypt properly with single layer.
 			$properly_encrypted = EnjinMel_SMTP_Encryption::encrypt( $decrypted_twice );
-			
+
 			if ( ! is_wp_error( $properly_encrypted ) ) {
 				$settings['api_key'] = $properly_encrypted;
 			}
@@ -321,13 +369,13 @@ function enjinmel_smtp_settings_sanitize( $input ) {
 	$output   = array();
 	$existing = enjinmel_smtp_get_settings( array() );
 
-	$output['campaign_name']  = isset( $input['campaign_name'] ) ? sanitize_text_field( $input['campaign_name'] ) : '';
-	$output['template_id']    = isset( $input['template_id'] ) ? sanitize_text_field( $input['template_id'] ) : '';
-	$output['from_name']      = isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '';
-	
+	$output['campaign_name'] = isset( $input['campaign_name'] ) ? sanitize_text_field( $input['campaign_name'] ) : '';
+	$output['template_id']   = isset( $input['template_id'] ) ? sanitize_text_field( $input['template_id'] ) : '';
+	$output['from_name']     = isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '';
+
 	// Validate and sanitize from_email.
 	$raw_email = isset( $input['from_email'] ) ? trim( (string) $input['from_email'] ) : '';
-	if ( $raw_email !== '' && ! is_email( $raw_email ) ) {
+	if ( '' !== $raw_email && ! is_email( $raw_email ) ) {
 		add_settings_error(
 			enjinmel_smtp_option_key(),
 			'enjinmel_invalid_from_email',
@@ -340,9 +388,9 @@ function enjinmel_smtp_settings_sanitize( $input ) {
 		// Empty allowed (to clear), sanitize valid emails.
 		$output['from_email'] = sanitize_email( $raw_email );
 	}
-	
+
 	$output['force_from'] = ! empty( $input['force_from'] ) ? 1 : 0;
-	
+
 	// Default logging to enabled (1) if not explicitly set.
 	if ( isset( $input['enable_logging'] ) ) {
 		$output['enable_logging'] = ! empty( $input['enable_logging'] ) ? 1 : 0;
@@ -380,6 +428,18 @@ function enjinmel_smtp_settings_sanitize( $input ) {
 }
 
 /**
+ * Sanitize legacy EngineMail settings and persist them under the current option key.
+ *
+ * @param  array $input The raw legacy settings input.
+ * @return array Sanitized settings.
+ */
+function enjinmel_smtp_settings_sanitize_legacy( $input ) {
+	$output = enjinmel_smtp_settings_sanitize( $input );
+	enjinmel_smtp_update_settings( $output );
+	return $output;
+}
+
+/**
  * Short-circuit wp_mail() to submit messages via the Enginemailer REST API.
  *
  * @param  null|bool|WP_Error $preemptive_return Preemptive return value.
@@ -413,6 +473,12 @@ function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
 			$response->get_error_data()
 		);
 
+		$error->add(
+			'enginemail_rest_failure',
+			$response->get_error_message(),
+			$response->get_error_data()
+		);
+
 		/**
 		 * Mirror core behaviour for failed mail to keep downstream hooks consistent.
 		 */
@@ -428,12 +494,13 @@ function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
 	do_action(
 		'wp_mail_succeeded',
 		array(
-			'to'          => $args['to'],
-			'subject'     => $args['subject'],
-			'message'     => $args['message'],
-			'headers'     => $args['headers'],
-			'attachments' => $args['attachments'],
-			'transport'   => 'enjinmel_rest',
+			'to'               => $args['to'],
+			'subject'          => $args['subject'],
+			'message'          => $args['message'],
+			'headers'          => $args['headers'],
+			'attachments'      => $args['attachments'],
+			'transport'        => 'enjinmel_rest',
+			'legacy_transport' => 'enginemail_rest',
 		)
 	);
 
@@ -476,6 +543,9 @@ function enjinmel_smtp_activate() {
 
 	dbDelta( $sql );
 
+	enjinmel_smtp_migrate_legacy_settings();
+	enjinmel_smtp_migrate_legacy_logs();
+
 	if ( class_exists( 'EnjinMel_SMTP_Logging' ) ) {
 		EnjinMel_SMTP_Logging::schedule_events();
 	}
@@ -490,6 +560,7 @@ function enjinmel_smtp_deactivate() {
 	if ( class_exists( 'EnjinMel_SMTP_Logging' ) ) {
 		EnjinMel_SMTP_Logging::unschedule_events();
 	}
+	wp_clear_scheduled_hook( enjinmel_smtp_legacy_cron_hook() );
 }
 
 register_deactivation_hook( __FILE__, 'enjinmel_smtp_deactivate' );
@@ -514,3 +585,43 @@ function enjinmel_smtp_admin_notices() {
 	}
 }
 add_action( 'admin_notices', 'enjinmel_smtp_admin_notices' );
+
+/**
+ * Migrate settings from the legacy EngineMail option key when needed.
+ *
+ * @return void
+ */
+function enjinmel_smtp_migrate_legacy_settings() {
+	if ( is_array( get_option( enjinmel_smtp_option_key(), null ) ) ) {
+		return;
+	}
+
+	$legacy_settings = get_option( 'enginemail_smtp_settings', null );
+	if ( is_array( $legacy_settings ) ) {
+		enjinmel_smtp_update_settings( $legacy_settings );
+	}
+}
+
+/**
+ * Migrate legacy EngineMail log rows into the current EnjinMel table.
+ *
+ * @return void
+ */
+function enjinmel_smtp_migrate_legacy_logs() {
+	global $wpdb;
+
+	$legacy_table = enjinmel_smtp_legacy_log_table_name();
+	$new_table    = enjinmel_smtp_log_table_name();
+
+	if ( ! enjinmel_smtp_table_exists( $legacy_table ) || ! enjinmel_smtp_table_exists( $new_table ) ) {
+		return;
+	}
+
+	// Avoid duplicating logs on repeated activation.
+	$new_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$new_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name comes from controlled plugin helper.
+	if ( 0 !== $new_count ) {
+		return;
+	}
+
+	$wpdb->query( "INSERT INTO `{$new_table}` (timestamp, to_email, subject, status, error_message) SELECT timestamp, to_email, subject, status, error_message FROM `{$legacy_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Controlled table names and migration query.
+}

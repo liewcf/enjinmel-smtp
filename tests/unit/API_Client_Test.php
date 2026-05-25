@@ -20,7 +20,7 @@ if ( ! function_exists( 'enjinmel_smtp_pre_wp_mail' ) ) {
 /**
  * Tests API client integration points with WordPress mail.
  */
-class Test_API_Client extends WP_UnitTestCase {
+class API_Client_Test extends WP_UnitTestCase {
 
 	/**
 	 * Prepare encrypted settings and filter state before each test.
@@ -126,8 +126,9 @@ class Test_API_Client extends WP_UnitTestCase {
 		$this->assertSame( 'REST Subject', $payload['Subject'] );
 		$this->assertSame( 'no-reply@example.com', $payload['SenderEmail'] );
 		$this->assertSame( 'EnjinMel QA', $payload['SenderName'] );
-		$this->assertSame( 'text/plain', $payload['SubmittedContentType'] );
-		$this->assertFalse( $payload['IsHtmlContent'] );
+		$this->assertSame( 'Hello from REST transport.', $payload['SubmittedContent'] );
+		$this->assertArrayNotHasKey( 'SubmittedContentType', $payload );
+		$this->assertArrayNotHasKey( 'IsHtmlContent', $payload );
 
 		$this->assertNotEmpty( $before_hook, 'enjinmel_smtp_before_send should receive data.' );
 		$this->assertNotEmpty( $after_hook, 'enjinmel_smtp_after_send should receive data.' );

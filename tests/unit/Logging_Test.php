@@ -20,7 +20,7 @@ if ( ! function_exists( 'enjinmel_smtp_pre_wp_mail' ) ) {
 /**
  * Tests the logging helpers for the EnjinMel SMTP plugin.
  */
-class Test_Logging extends WP_UnitTestCase {
+class Logging_Test extends WP_UnitTestCase {
 
 	/**
 	 * Holds the plugin log table name for assertions.

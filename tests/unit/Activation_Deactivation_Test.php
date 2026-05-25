@@ -16,7 +16,40 @@ if ( ! defined( 'ENJINMEL_SMTP_IV' ) ) {
 /**
  * Test plugin activation and deactivation routines.
  */
-class Test_Activation_Deactivation extends WP_UnitTestCase {
+class Activation_Deactivation_Test extends WP_UnitTestCase {
+
+	/**
+	 * Disable WordPress' temporary table rewrite for real plugin table DDL tests.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+	}
+
+	/**
+	 * Clean real plugin tables created by activation tests.
+	 *
+	 * @return void
+	 */
+	protected function tearDown(): void {
+		global $wpdb;
+
+		$wpdb->query( 'DROP TABLE IF EXISTS `' . enjinmel_smtp_log_table_name() . '`' );
+		$wpdb->query( 'DROP TABLE IF EXISTS `' . enjinmel_smtp_legacy_log_table_name() . '`' );
+		delete_option( 'enjinmel_smtp_settings' );
+		delete_option( 'enginemail_smtp_settings' );
+		wp_clear_scheduled_hook( enjinmel_smtp_cron_hook() );
+		wp_clear_scheduled_hook( enjinmel_smtp_legacy_cron_hook() );
+
+		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Test that activation creates the enjinmel_smtp_logs table.
@@ -28,7 +61,7 @@ class Test_Activation_Deactivation extends WP_UnitTestCase {
 
 		$table_name = enjinmel_smtp_log_table_name();
 
-		$wpdb->query( "DROP TABLE IF EXISTS {$table_name}" );
+		$wpdb->query( "DROP TABLE IF EXISTS `{$table_name}`" );
 
 		$this->assertFalse( enjinmel_smtp_table_exists( $table_name ) );
 
@@ -71,12 +104,12 @@ class Test_Activation_Deactivation extends WP_UnitTestCase {
 		$legacy_table = enjinmel_smtp_legacy_log_table_name();
 		$new_table    = enjinmel_smtp_log_table_name();
 
-		$wpdb->query( "DROP TABLE IF EXISTS {$new_table}" );
-		$wpdb->query( "DROP TABLE IF EXISTS {$legacy_table}" );
+		$wpdb->query( "DROP TABLE IF EXISTS `{$new_table}`" );
+		$wpdb->query( "DROP TABLE IF EXISTS `{$legacy_table}`" );
 
 		$charset_collate = $wpdb->get_charset_collate();
 		$wpdb->query(
-			"CREATE TABLE {$legacy_table} (
+			"CREATE TABLE `{$legacy_table}` (
                 id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                 timestamp DATETIME NOT NULL,
                 to_email VARCHAR(255) NOT NULL,

@@ -1,5 +1,16 @@
 # Work Changelog
 
+## 2026-05-26
+
+- Verified the plugin against WordPress 7.0 using Docker containers for WordPress 7.0/PHP 8.3 and MySQL 8.4.
+- Removed `enjinmel-smtp.php` from Composer `autoload.files` so Composer dev tools execute outside WordPress.
+- Aligned test tooling to WordPress 7.0: `wp-phpunit` 7.0, PHPUnit 9.6, and PHPUnit Polyfills 4.0.
+- Renamed PHPUnit tests to `*_Test.php` / `*_Test` names for reliable discovery.
+- Restored legacy EngineMail compatibility helpers and metadata while keeping the current EnjinMel API payload shape.
+- Hardened Send Test Email recipient validation and made table-existence checks work with both persistent and temporary tables.
+- Updated `Tested up to` metadata to WordPress 7.0.
+- Verification run: Docker-backed `./vendor/bin/phpunit` against WordPress 7.0, `./vendor/bin/phpcs`, PHP syntax lint, live WP-CLI plugin activation checks, mocked `wp_mail()` success/error probes, host HTTP 200 check, and Composer audit checks.
+
 ## 2026-05-15
 
 - Initialized project memory via `project-memory` setup.
