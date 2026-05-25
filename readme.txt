@@ -4,7 +4,7 @@ Tags: email, smtp, transactional email, wp_mail, email delivery
 Requires at least: 5.3
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.4
+Stable tag: 0.2.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,7 +90,10 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 
 == Changelog ==
 
-= Unreleased =
+= 0.2.5 =
+* Fixed: Restored legacy EngineMail compatibility helpers for settings, log migration, cron cleanup, and mail failure metadata while keeping current EnjinMel behavior.
+* Fixed: Hardened Send Test Email recipient validation to reject tampered input instead of sanitizing it into a different address.
+* Fixed: Made log-table detection work for both persistent WordPress tables and temporary tables created by the WordPress PHPUnit test suite.
 * Changed: Verified compatibility with WordPress 7.0 and updated `Tested up to`.
 * Changed: Aligned the WordPress test stack with WordPress 7.0 using PHPUnit 9.6, `wp-phpunit` 7.0, and PHPUnit Polyfills 4.0.
 
@@ -143,6 +146,9 @@ Yes! Any plugin that uses WordPress's standard `wp_mail()` function will automat
 * Test email functionality
 
 == Upgrade Notice ==
+
+= 0.2.5 =
+COMPATIBILITY UPDATE: Verifies WordPress 7.0 support, restores legacy EngineMail upgrade paths, and hardens Send Test Email validation.
 
 = 0.2.4 =
 RECOMMENDED SECURITY UPDATE: Preserves prior mail-blocking filters before EnjinMel sends, neutralizes spreadsheet formula prefixes in CSV log exports, hardens Send Test Email error rendering, and updates PHPUnit dev tooling.

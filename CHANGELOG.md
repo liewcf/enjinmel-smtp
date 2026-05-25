@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-05-26
+
 ### Fixed
 - Restored legacy EngineMail compatibility helpers for settings, log migration, cron cleanup, and mail failure metadata while keeping current EnjinMel behavior.
 - Hardened Send Test Email recipient validation to reject tampered input instead of sanitizing it into a different address.
@@ -138,6 +140,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enginemailer API key
 - Encryption constants in wp-config.php (optional - auto-generated if not provided)
 
+[0.2.5]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.5
 [0.2.4]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.4
 [0.2.3]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.3
 [0.2.2]: https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.2

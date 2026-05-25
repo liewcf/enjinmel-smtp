@@ -9,6 +9,7 @@
 - Restored legacy EngineMail compatibility helpers and metadata while keeping the current EnjinMel API payload shape.
 - Hardened Send Test Email recipient validation and made table-existence checks work with both persistent and temporary tables.
 - Updated `Tested up to` metadata to WordPress 7.0.
+- Bumped release metadata and docs to `0.2.5` across plugin header, WordPress readme, README, changelog, POT header, docs index, and release notes.
 - Verification run: Docker-backed `./vendor/bin/phpunit` against WordPress 7.0, `./vendor/bin/phpcs`, PHP syntax lint, live WP-CLI plugin activation checks, mocked `wp_mail()` success/error probes, host HTTP 200 check, and Composer audit checks.
 
 ## 2026-05-15

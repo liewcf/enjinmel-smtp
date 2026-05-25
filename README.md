@@ -3,11 +3,11 @@
 [![WordPress Compatibility](https://img.shields.io/badge/wordpress-5.3%2B-blue.svg)](https://wordpress.org/)
 [![PHP Version](https://img.shields.io/badge/php-7.4%2B-purple.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-GPLv2%2B-green.svg)](LICENSE.txt)
-[![Version](https://img.shields.io/badge/version-0.2.4-blue.svg)](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.4)
+[![Version](https://img.shields.io/badge/version-0.2.5-blue.svg)](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.5)
 
 Replace WordPress's default email sending with the Enginemailer REST API for improved deliverability and reliability.
 
-> **Latest Release (v0.2.4):** Security maintenance release that preserves prior mail blockers, hardens CSV exports and test-email errors, and updates PHPUnit dev tooling. [Release Notes](RELEASE-NOTES-v0.2.4.md) | [Download](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.4)
+> **Latest Release (v0.2.5):** WordPress 7.0 compatibility release that restores legacy EngineMail upgrade paths, hardens test-email validation, and aligns the WordPress test stack. [Release Notes](RELEASE-NOTES-v0.2.5.md) | [Download](https://github.com/liewcf/enjinmel-smtp/releases/tag/v0.2.5)
 
 > **Important:** This plugin is an independent WordPress integration and is not affiliated with or endorsed by Enginemailer.
 
@@ -269,26 +269,27 @@ define('ENJINMEL_SMTP_PURGE_LOGS_ON_UNINSTALL', true);
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### Current Version: 0.2.4
+### Current Version: 0.2.5
+
+**WordPress 7.0 compatibility and maintenance**
+
+- **Fixed:** Restored legacy EngineMail compatibility helpers for settings, log migration, cron cleanup, and mail failure metadata.
+- **Fixed:** Hardened Send Test Email recipient validation to reject tampered input.
+- **Fixed:** Made log-table detection work with persistent WordPress tables and temporary PHPUnit tables.
+- **Changed:** Verified compatibility with WordPress 7.0 and aligned the test stack with PHPUnit 9.6 / `wp-phpunit` 7.0.
+- **Changed:** Removed the plugin bootstrap from Composer `autoload.files` so Composer dev tools run outside WordPress.
+
+### Previous Version: 0.2.4
 
 **Security fixes and hardening**
 
 - **Fixed:** Preserve prior non-null `pre_wp_mail` return values, including `WP_Error`, before sending through EnjinMel.
 - **Fixed:** Neutralize spreadsheet formula prefixes in exported email log CSV values.
 - **Hardened:** Insert dynamic Send Test Email failure messages as text instead of HTML.
-- **Changed:** Verified compatibility with WordPress 7.0 and aligned the WordPress test stack with PHPUnit 9.6 / `wp-phpunit` 7.0.
 - **Tests:** Added regression coverage for prior `WP_Error` preservation and CSV formula neutralization.
 
-### Previous Version: 0.2.3
-
-**Plugin-check & packaging hygiene**
-
-- **Fixed:** Addressed WordPress.org plugin check warnings by flagging `wp_mail_failed`, `wp_mail_succeeded`, and `wp_mail_content_type` hooks with PHPCS ignores while preserving core behavior.
-- **Fixed:** Removed the manual `load_plugin_textdomain()` call so WordPress automatically loads translations (plugin slug handles the rest).
-- **Fixed:** Prefixed uninstall globals before dropping the log table to satisfy NamingConventions checks.
-- **Changed:** Rebuilt packaging with `.gitattributes` export-ignore rules to ship a lean zip (tests/docs/dev files omitted) while keeping the required `languages/` folder for the `/languages` domain path.
-
 **Previous Releases:**
+- **v0.2.3** - Plugin-check and packaging hygiene
 - **v0.2.2** - Critical bug fixes and API V2 compliance
 - **v0.2.0** - Major security and performance update
 - **v0.1.0** - Initial release with Enginemailer REST API integration

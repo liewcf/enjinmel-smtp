@@ -4,7 +4,7 @@
 
 - Project purpose: WordPress plugin that intercepts `wp_mail()` and sends mail through the Enginemailer REST API for EnjinMel SMTP.
 - Primary users: WordPress site owners/admins who need transactional email delivery via Enginemailer; future maintainers preparing WordPress.org-compatible releases.
-- Current status: Version `0.2.4` in plugin headers, changelog, and release notes for the security maintenance release. WordPress compatibility metadata is verified up to `7.0`; dist packaging still needs rebuilding before publishing release assets.
+- Current status: Version `0.2.5` in plugin headers, changelog, and release notes for the WordPress 7.0 compatibility maintenance release. WordPress compatibility metadata is verified up to `7.0`; dist packaging still needs rebuilding before publishing release assets.
 
 ## Architecture
 
