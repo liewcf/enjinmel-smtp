@@ -110,7 +110,7 @@ function enjinmel_smtp_table_exists( $table ) {
 
 	$last_error        = $wpdb->last_error;
 	$previous_suppress = $wpdb->suppress_errors( true );
-	$result            = $wpdb->query( "SELECT 1 FROM `{$safe_table}` LIMIT 0" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Safe table name is sanitized above; probe detects temporary tables.
+	$result            = $wpdb->query( "SELECT 1 FROM `{$safe_table}` LIMIT 0" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Safe table name is sanitized above; probe detects temporary tables.
 	$probe_error       = $wpdb->last_error;
 	$wpdb->suppress_errors( $previous_suppress );
 	$wpdb->last_error = $last_error;
@@ -490,9 +490,8 @@ function enjinmel_smtp_pre_wp_mail( $preemptive_return, $args ) {
 	/**
 	 * Mirror core behaviour for successful mail sends.
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Mirror core hook to maintain wp_mail compatibility.
 	do_action(
-		'wp_mail_succeeded',
+		'wp_mail_succeeded', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Mirror core hook to maintain wp_mail compatibility.
 		array(
 			'to'               => $args['to'],
 			'subject'          => $args['subject'],
@@ -618,10 +617,10 @@ function enjinmel_smtp_migrate_legacy_logs() {
 	}
 
 	// Avoid duplicating logs on repeated activation.
-	$new_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$new_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name comes from controlled plugin helper.
+	$new_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$new_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name comes from controlled plugin helper.
 	if ( 0 !== $new_count ) {
 		return;
 	}
 
-	$wpdb->query( "INSERT INTO `{$new_table}` (timestamp, to_email, subject, status, error_message) SELECT timestamp, to_email, subject, status, error_message FROM `{$legacy_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Controlled table names and migration query.
+	$wpdb->query( "INSERT INTO `{$new_table}` (timestamp, to_email, subject, status, error_message) SELECT timestamp, to_email, subject, status, error_message FROM `{$legacy_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Controlled table names and migration query.
 }

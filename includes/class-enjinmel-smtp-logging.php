@@ -298,20 +298,20 @@ class EnjinMel_SMTP_Logging {
 				$threshold_obj = $clock->modify( sprintf( '-%d days', $days ) );
 				if ( false !== $threshold_obj ) {
 					$threshold = $threshold_obj->format( 'Y-m-d H:i:s' );
-					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE timestamp < %s", $threshold ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
+					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE timestamp < %s", $threshold ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name sanitized prior to interpolation.
 				}
 			}
 		}
 
 		if ( $max_rows > 0 ) {
-			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
+			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name sanitized prior to interpolation.
 			if ( $count > $max_rows ) {
 				$over_limit = $count - $max_rows;
-				$ids        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} ORDER BY timestamp ASC LIMIT %d", $over_limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name sanitized prior to interpolation.
+				$ids        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} ORDER BY timestamp ASC LIMIT %d", $over_limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name sanitized prior to interpolation.
 				if ( ! empty( $ids ) ) {
 					$ids          = array_map( 'intval', $ids );
 					$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN ({$placeholders})", $ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table name sanitized prior to interpolation; placeholders generated explicitly for ids.
+					$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN ({$placeholders})", $ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name sanitized prior to interpolation; placeholders generated explicitly for ids.
 				}
 			}
 		}

@@ -35,6 +35,6 @@ if ( $enjinmel_smtp_purge ) {
 	global $wpdb;
 	$enjinmel_smtp_table = $wpdb->prefix . 'enjinmel_smtp_logs';
 	$enjinmel_smtp_safe  = preg_replace( '/[^A-Za-z0-9_]/', '', (string) $enjinmel_smtp_table );
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Explicit uninstall-time cleanup on sanitized table names.
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Explicit uninstall-time cleanup on sanitized table names.
 	$wpdb->query( "DROP TABLE IF EXISTS {$enjinmel_smtp_safe}" );
 }

@@ -344,13 +344,15 @@ class EnjinMel_SMTP_Log_Viewer {
 	private static function get_logs() {
 		global $wpdb;
 
-		$table        = enjinmel_smtp_sanitize_table_name( enjinmel_smtp_active_log_table() );
+		$table = enjinmel_smtp_sanitize_table_name( enjinmel_smtp_active_log_table() );
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only list-table filter/pagination params; values sanitized immediately below.
 		$search       = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		$status       = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
 		$date_from    = isset( $_GET['date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['date_from'] ) ) : '';
 		$date_to      = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['date_to'] ) ) : '';
 		$per_page     = isset( $_GET['per_page'] ) ? absint( $_GET['per_page'] ) : 20;
 		$current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
+		// phpcs:enable
 		$per_page     = max( 1, min( 100, $per_page ) );
 		$current_page = max( 1, $current_page );
 
@@ -385,7 +387,7 @@ class EnjinMel_SMTP_Log_Viewer {
 		if ( ! empty( $prepare_args ) ) {
 			$count_sql = $wpdb->prepare( $count_sql, $prepare_args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
-		$total = (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$total = (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name identifier-sanitized via enjinmel_smtp_sanitize_table_name(); values prepared.
 
 		$offset = ( $current_page - 1 ) * $per_page;
 
@@ -393,7 +395,7 @@ class EnjinMel_SMTP_Log_Viewer {
 		$args     = array_merge( $prepare_args, array( $per_page, $offset ) );
 		$logs_sql = $wpdb->prepare( $logs_sql, $args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		$logs = $wpdb->get_results( $logs_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$logs = $wpdb->get_results( $logs_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name identifier-sanitized via enjinmel_smtp_sanitize_table_name(); values prepared.
 
 		return array(
 			'logs'         => $logs,
@@ -422,7 +424,7 @@ class EnjinMel_SMTP_Log_Viewer {
 		global $wpdb;
 		$table        = enjinmel_smtp_sanitize_table_name( enjinmel_smtp_active_log_table() );
 		$placeholders = implode( ',', array_fill( 0, count( $log_ids ), '%d' ) );
-		$deleted      = $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE id IN ({$placeholders})", $log_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$deleted      = $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE id IN ({$placeholders})", $log_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name identifier-sanitized via enjinmel_smtp_sanitize_table_name(); values prepared.
 
 		if ( false === $deleted ) {
 			wp_send_json_error( array( 'message' => __( 'Failed to delete logs.', 'enjinmel-smtp' ) ), 500 );
@@ -488,7 +490,7 @@ class EnjinMel_SMTP_Log_Viewer {
 			$logs_sql = $wpdb->prepare( $logs_sql, $prepare_args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 
-		$logs = $wpdb->get_results( $logs_sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$logs = $wpdb->get_results( $logs_sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name identifier-sanitized via enjinmel_smtp_sanitize_table_name(); values prepared.
 
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename=enjinmel-smtp-logs-' . gmdate( 'Y-m-d-H-i-s' ) . '.csv' );
@@ -522,11 +524,11 @@ class EnjinMel_SMTP_Log_Viewer {
 		$table = enjinmel_smtp_sanitize_table_name( enjinmel_smtp_active_log_table() );
 
 		// Try TRUNCATE first (faster), fallback to DELETE if TRUNCATE fails.
-		$deleted = $wpdb->query( "TRUNCATE TABLE `{$table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$deleted = $wpdb->query( "TRUNCATE TABLE `{$table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name identifier-sanitized via enjinmel_smtp_sanitize_table_name(); no dynamic values.
 
 		if ( false === $deleted ) {
 			// Fallback to DELETE FROM for hosts that restrict TRUNCATE permissions.
-			$deleted = $wpdb->query( "DELETE FROM `{$table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$deleted = $wpdb->query( "DELETE FROM `{$table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name identifier-sanitized via enjinmel_smtp_sanitize_table_name(); no dynamic values.
 		}
 
 		if ( false === $deleted ) {

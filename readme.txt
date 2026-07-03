@@ -154,7 +154,7 @@ COMPATIBILITY UPDATE: Verifies WordPress 7.0 support, restores legacy EngineMail
 RECOMMENDED SECURITY UPDATE: Preserves prior mail-blocking filters before EnjinMel sends, neutralizes spreadsheet formula prefixes in CSV log exports, hardens Send Test Email error rendering, and updates PHPUnit dev tooling.
 
 = 0.2.3 =
-RECOMMENDED UPDATE: Addresses WordPress.org plugin check findings by removing the discouraged `load_plugin_textdomain()` call, properly prefixing uninstall globals, and regenerating the distributable bundle (new `enjinmel-smtp-0.2.3.zip`) including the `/languages` directory referenced by the Domain Path.
+RECOMMENDED UPDATE: Addresses WordPress.org plugin check findings by removing the discouraged `load_plugin_textdomain()` call, properly prefixing uninstall globals, and regenerating the distributable bundle (with /languages) referenced by the Domain Path.
 
 = 0.2.2 =
 CRITICAL UPDATE: Fixes double-encryption bug that prevented API keys from working. Includes automatic repair for affected installations. Update immediately if experiencing email delivery issues.
