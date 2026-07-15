@@ -168,6 +168,14 @@ CRITICAL SECURITY UPDATE: Fixes multiple security vulnerabilities including encr
 = 0.1.0 =
 Initial release of EnjinMel SMTP plugin with full email delivery and logging features.
 
+== External services ==
+
+This plugin requires an Enginemailer account and connects to the Enginemailer REST API at https://api.enginemailer.com to deliver email. The connection occurs whenever WordPress sends an email through `wp_mail()`, including when an administrator uses the Send Test Email feature.
+
+By default, each API request sends the configured Enginemailer API key, recipient addresses (To, CC, and BCC), sender name and email address, subject, email body, and any configured campaign name or template ID. If an email includes attachments, the plugin reads those local files and sends their filenames and Base64-encoded contents. Developers may modify the outbound payload or request using the plugin's documented filters.
+
+Enginemailer provides the email delivery service. Review its [Terms of Service](https://www.enginemailer.com/legal/termsofservice) and [Privacy Policy](https://www.enginemailer.com/legal/privacypolicy).
+
 == Privacy ==
 
 This plugin stores limited email metadata to aid troubleshooting and deliverability monitoring:

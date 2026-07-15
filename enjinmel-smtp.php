@@ -279,6 +279,45 @@ function enjinmel_smtp_add_admin_menu() {
 add_action( 'admin_menu', 'enjinmel_smtp_add_admin_menu' );
 
 /**
+ * Enqueue assets for the plugin settings page.
+ *
+ * @param string $hook Current admin page hook.
+ */
+function enjinmel_smtp_enqueue_settings_assets( $hook ) {
+	if ( 'toplevel_page_' . enjinmel_smtp_settings_group() !== $hook ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'enjinmel-smtp-settings',
+		plugins_url( 'assets/js/settings.js', __FILE__ ),
+		array( 'jquery' ),
+		'0.2.5',
+		true
+	);
+
+	wp_localize_script(
+		'enjinmel-smtp-settings',
+		'enjinmelSmtpSettings',
+		array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'action'  => 'enjinmel_smtp_send_test_email',
+			'nonce'   => wp_create_nonce( 'enjinmel_smtp_send_test_email' ),
+			'strings' => array(
+				'show'          => __( 'Show', 'enjinmel-smtp' ),
+				'hide'          => __( 'Hide', 'enjinmel-smtp' ),
+				'sending'       => __( 'Sending…', 'enjinmel-smtp' ),
+				'success'       => __( 'Test email sent successfully.', 'enjinmel-smtp' ),
+				'failed'        => __( 'Failed to send test email.', 'enjinmel-smtp' ),
+				'requestFailed' => __( 'Request failed. Please try again.', 'enjinmel-smtp' ),
+				'errorPrefix'   => __( 'Error: ', 'enjinmel-smtp' ),
+			),
+		)
+	);
+}
+add_action( 'admin_enqueue_scripts', 'enjinmel_smtp_enqueue_settings_assets' );
+
+/**
  * Register the settings.
  */
 function enjinmel_smtp_settings_init() {
@@ -329,33 +368,8 @@ function enjinmel_smtp_options_page() {
 		<label for="enjinmel_smtp_test_to"><?php echo esc_html__( 'Recipient', 'enjinmel-smtp' ); ?></label>
 		<input type="email" id="enjinmel_smtp_test_to" placeholder="you@example.com" />
 		<button class="button" id="enjinmel_smtp_send_test"><?php echo esc_html__( 'Send Test', 'enjinmel-smtp' ); ?></button>
-		<input type="hidden" id="enjinmel_smtp_test_nonce" value="<?php echo esc_attr( wp_create_nonce( 'enjinmel_smtp_send_test_email' ) ); ?>" />
 	</p>
 	<p id="enjinmel_smtp_test_result"></p>
-	<script type="text/javascript">
-	(function($){
-		$('#enjinmel_smtp_send_test').on('click', function(e){
-			e.preventDefault();
-			var to = $('#enjinmel_smtp_test_to').val();
-			var nonce = $('#enjinmel_smtp_test_nonce').val();
-			$('#enjinmel_smtp_test_result').text('<?php echo esc_js( __( 'Sending…', 'enjinmel-smtp' ) ); ?>');
-			$.post(ajaxurl, {
-				action: 'enjinmel_smtp_send_test_email',
-				nonce: nonce,
-				to: to
-			}).done(function(resp){
-				if(resp && resp.success){
-					$('#enjinmel_smtp_test_result').html('<strong style="color: #46b450;"><?php echo esc_js( __( 'Test email sent successfully.', 'enjinmel-smtp' ) ); ?></strong>');
-				} else {
-					var msg = (resp && resp.data && resp.data.message) ? resp.data.message : '<?php echo esc_js( __( 'Failed to send test email.', 'enjinmel-smtp' ) ); ?>';
-					$('#enjinmel_smtp_test_result').empty().append($('<span>').css('color', '#dc3232').text('Error: ' + msg));
-				}
-			}).fail(function(){
-				$('#enjinmel_smtp_test_result').html('<span style="color: #dc3232;"><?php echo esc_js( __( 'Request failed. Please try again.', 'enjinmel-smtp' ) ); ?></span>');
-			});
-		});
-	})(jQuery);
-	</script>
 	<?php
 }
 

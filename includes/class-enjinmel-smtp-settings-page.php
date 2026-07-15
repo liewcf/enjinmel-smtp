@@ -104,22 +104,6 @@ class EnjinMel_SMTP_Settings_Page {
 				<?php echo esc_html__( 'Show', 'enjinmel-smtp' ); ?>
 			</button>
 		</div>
-		<script type="text/javascript">
-			(function ($) {
-				$('#enjinmel_smtp_toggle_api_key').on('click', function () {
-					var input = $('#enjinmel_smtp_api_key');
-					var button = $(this);
-
-					if (input.attr('type') === 'password') {
-						input.attr('type', 'text');
-						button.text('<?php echo esc_js( __( 'Hide', 'enjinmel-smtp' ) ); ?>');
-					} else {
-						input.attr('type', 'password');
-						button.text('<?php echo esc_js( __( 'Show', 'enjinmel-smtp' ) ); ?>');
-					}
-				});
-			})(jQuery);
-		</script>
 		<?php
 	}
 
