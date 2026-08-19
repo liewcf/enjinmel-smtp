@@ -19,6 +19,13 @@ if ( ! defined( 'ENJINMEL_SMTP_IV' ) ) {
 class AJAX_Handler_Test extends WP_Ajax_UnitTestCase {
 
 	/**
+	 * Admin user ID created for capability checks.
+	 *
+	 * @var int
+	 */
+	public $admin_user;
+
+	/**
 	 * Set up test user with admin capabilities.
 	 *
 	 * @return void

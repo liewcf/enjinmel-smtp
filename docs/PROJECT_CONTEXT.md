@@ -4,7 +4,7 @@ description: Stable project facts, structure, workflows, resources, and constrai
 doc_type: context
 status: stable
 created: 2026-07-03
-updated: 2026-07-15
+updated: 2026-08-19
 tags:
   - project-memory
   - context
@@ -24,7 +24,7 @@ related:
 
 - Project purpose: WordPress plugin that intercepts `wp_mail()` and sends mail through the Enginemailer REST API for EnjinMel SMTP.
 - Primary users: WordPress site owners/admins who need transactional email delivery via Enginemailer; future maintainers preparing WordPress.org-compatible releases.
-- Current status: WordPress.org received the corrected `0.2.5` package on 2026-07-13. The 2026-07-14 manual review requested proper settings-page script enqueuing and a complete Enginemailer external-service disclosure. Both fixes and their regression tests were completed on 2026-07-15; the exact replacement ZIP passes PHPCS, PHPUnit, readme validation, and Plugin Check and is ready to upload. Plugin ID: 335769; slug: `enjinmel-smtp`.
+- Current status: EnjinMel SMTP `0.2.5` is published on WordPress.org as of 2026-07-16. Plugin ID: 335769; slug: `enjinmel-smtp`. The separate Plugin Directory asset SVN checkout has the icon and screenshots committed in revision `3609733`; banner and PNG icon fallback files remain staged for a follow-up asset-only commit. WordPress 7.1 compatibility was verified against 7.1-RC4 on 2026-08-19 (Docker, PHP 8.3, MySQL 8.4) with no code changes required; `Tested up to` metadata still reads 7.0 pending the 7.1 final release.
 
 ## Architecture
 
@@ -48,6 +48,7 @@ related:
 - Test bootstrap: `tests/bootstrap.php` reads `WP_TESTS_DIR`, falling back to `/tmp/wordpress-tests-lib` on macOS.
 - Optional local WP environment: `@wordpress/env` (`wp-env`) is documented in the README.
 - Distribution: `git archive` with `.gitattributes` `export-ignore` rules (see `AGENTS.md` for exact commands).
+- WordPress.org display assets are not part of the release ZIP. In the Plugin Directory SVN checkout, add them to the top-level `assets/` directory beside `trunk` and `tags`, using the documented filenames (for example, `banner-772x250.png`, `banner-1544x500.png`, `icon-256x256.png`, `icon.svg`, and `screenshot-1.png`).
 - Feature planning files/scripts live under `specs/`, `scripts/`, and `templates/`.
 - See `AGENTS.md` for the canonical build, lint, test, and distribution commands.
 

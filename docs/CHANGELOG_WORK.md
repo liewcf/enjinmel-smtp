@@ -4,7 +4,7 @@ description: Dated notes on changed files, deliverables, tooling, checks, and ve
 doc_type: work_log
 status: active
 created: 2026-07-03
-updated: 2026-07-15
+updated: 2026-08-19
 tags:
   - project-memory
   - changelog
@@ -20,6 +20,24 @@ related:
 ---
 
 # Work Changelog
+
+## 2026-08-19
+
+- Verified EnjinMel SMTP `0.2.5` against WordPress `7.1-RC4` (final 7.1 release scheduled 2026-08-19; latest stable at test time was 7.0.4).
+- Research: reviewed the 7.1 field guide/dev notes surface (Icons API, speculative loading config, media library infinite scroll, jQuery UI 1.14.2, KSES `autofocus` on `dialog`); none touch the plugin's integration points (`pre_wp_mail`, WP HTTP API, Settings API, `dbDelta`, admin menus, `wp_ajax_*`).
+- Test environment: Docker (OrbStack) with `wordpress:beta-php8.3` (7.1-RC4, PHP 8.3.33) and `mysql:8.4`.
+- Live-site smoke tests all passed: plugin activation with `WP_DEBUG` on and zero notices/warnings in `debug.log`; log table `wp_enjinmel_smtp_logs` created on activation; settings sanitize + `v2:` encryption round-trip; settings page and Email Logs page render over HTTP with localized script data and nonces; Send Test Email AJAX flow returns the expected API-rejection error (fake key reaches the real Enginemailer endpoint and the error is surfaced through `wp_send_json_error`); failed sends logged with correct statuses; CSV export and Clear All Logs AJAX actions work.
+- PHPUnit against 7.1-RC4: `51 tests, 164 assertions, 0 failures` — identical counts to the WordPress 7.0 verification. 8 tests flagged risky due to a PHP 8.2+ dynamic-property deprecation in test code only (`tests/unit/AJAX_Handler_Test.php` assigns an undeclared `$admin_user` property); not a WordPress 7.1 incompatibility and no plugin code is affected.
+- Test library setup note: `wp-phpunit/wp-phpunit` has no 7.1 package yet, so the WordPress test library was built from the `wordpress-develop` `7.1` branch (`7.1-RC4-63322-src`) with `ABSPATH` pointed at the RC4 core inside the container.
+- Verification run: full PHPUnit (Docker-backed), PHPCS clean, live-site HTTP/AJAX/DB probes. No code changes required.
+- Fixed the test-only PHP 8.2+ dynamic-property deprecation: declared `public $admin_user;` (with PHPDoc) in `tests/unit/AJAX_Handler_Test.php`. Re-ran the full suite against WordPress 7.1-RC4/PHP 8.3: `OK (51 tests, 164 assertions)` with zero risky tests (previously 8); `--filter AJAX_Handler_Test` confirmed `OK (8 tests, 33 assertions)` with no deprecation output. `php -l` and PHPCS clean on the edited file. Test-only change; no plugin code touched.
+
+## 2026-07-16
+
+- Confirmed EnjinMel SMTP `0.2.5` is published on WordPress.org.
+- Diagnosed absent directory artwork: display assets must be committed to the Plugin Directory SVN checkout's top-level `assets/` directory, not the plugin's `trunk/assets/` runtime directory or the release ZIP.
+- Prepared and committed `assets/icon.svg`, `assets/screenshot-1.png`, and `assets/screenshot-2.png` in WordPress.org SVN revision `3609733`.
+- Prepared valid PNG fallbacks and headers in the same checkout: `banner-1544x500.png` (1544x500), `banner-772x250.png` (772x250), and `icon-256x256.png` (256x256). They are staged locally but not yet committed; public banner and PNG fallback verification is therefore pending.
 
 ## 2026-07-15
 
