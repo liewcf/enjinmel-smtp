@@ -88,6 +88,8 @@ GITHUB-RELEASE-INSTRUCTIONS.md
 .claude/
 .gemini/
 .gemini_security/
+.pressship-svn/
+docs/agents/
 docs/internal/
 scripts/
 specs/
